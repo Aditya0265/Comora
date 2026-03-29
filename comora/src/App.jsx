@@ -11,13 +11,19 @@ import HostLayout from './components/layout/HostLayout'
 import Landing       from './pages/Landing'
 import Login         from './pages/auth/Login'
 import Register      from './pages/auth/Register'
+import RoleSelect    from './pages/auth/RoleSelect'
+import HostSignup    from './pages/auth/HostSignup'
+import AttendeeSignup from './pages/auth/AttendeeSignup'
 import MatchMe       from './pages/auth/MatchMe'
 import Browse        from './pages/guest/Browse'
+import Discover      from './pages/guest/Discover'
 import EventDetail   from './pages/guest/EventDetail'
+import GatheringDetail from './pages/guest/GatheringDetail'
 import MyBookings    from './pages/guest/MyBookings'
 import Profile       from './pages/guest/Profile'
 import Settings      from './pages/guest/Settings'
 import HostDashboard from './pages/host/HostDashboard'
+import HostDashboardNew from './pages/host/HostDashboardNew'
 import HostStudio    from './pages/host/HostStudio'
 import HostProfile   from './pages/host/HostProfile'
 import Communities  from './pages/guest/Communities'
@@ -111,20 +117,25 @@ function AppRoutes() {
 
         {/* ── Host: dedicated sidebar layout ── */}
         <Route element={<RequireHost><HostLayout /></RequireHost>}>
-          <Route path="/host/dashboard"  element={<HostDashboard />} />
+          <Route path="/host/dashboard"  element={<HostDashboardNew />} />
           <Route path="/host/studio/new" element={<HostStudio />} />
           <Route path="/host/studio/:id" element={<HostStudio />} />
         </Route>
 
         {/* ── Guest / public: main layout with Navbar + Footer ── */}
         <Route element={<MainLayout />}>
-          <Route path="/"            element={<Landing />} />
-          <Route path="/login"       element={<Login />} />
-          <Route path="/register"    element={<Register />} />
-          <Route path="/browse"      element={<RequireMatchMe><Browse /></RequireMatchMe>} />
-          <Route path="/communities" element={<Communities />} />
-          <Route path="/events/:id"  element={<EventDetail />} />
-          <Route path="/host/:id"    element={<HostProfile />} />
+          <Route path="/"                     element={<Landing />} />
+          <Route path="/login"                element={<Login />} />
+          <Route path="/register"             element={<Register />} />
+          <Route path="/auth/role-select"     element={<RoleSelect />} />
+          <Route path="/auth/host/signup"     element={<HostSignup />} />
+          <Route path="/auth/attendee/signup" element={<AttendeeSignup />} />
+          <Route path="/browse"               element={<RequireMatchMe><Browse /></RequireMatchMe>} />
+          <Route path="/discover"             element={<RequireMatchMe><Discover /></RequireMatchMe>} />
+          <Route path="/communities"   element={<Communities />} />
+          <Route path="/events/:id"    element={<EventDetail />} />
+          <Route path="/gathering/:id" element={<GatheringDetail />} />
+          <Route path="/host/:id"      element={<HostProfile />} />
 
           <Route path="/onboarding"  element={<RequireAuth><MatchMe /></RequireAuth>} />
 

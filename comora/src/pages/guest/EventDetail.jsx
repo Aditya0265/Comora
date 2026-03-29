@@ -188,7 +188,7 @@ export default function EventDetail() {
       if (error) throw error
     },
     onSuccess: () => {
-      toast.success('Payment confirmed! You\'re all set.')
+      toast.success("Payment confirmed! You're all set.")
       setPayModalOpen(false)
       queryClient.invalidateQueries({ queryKey: ['booking', id, user?.id] })
     },

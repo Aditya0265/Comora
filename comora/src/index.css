@@ -8,93 +8,123 @@
 
 /* ─── Design Tokens — Light Mode ────────────────────────────── */
 :root {
-  --bg-base:        #FDFCF8;
-  --bg-subtle:      #F5F3EE;
+  /* Base Colors */
+  --bg-base:        #F5F1E8;  /* Warm Cream */
+  --bg-subtle:      #FAF6F0;
   --bg-card:        #FFFFFF;
   --bg-elevated:    #FFFFFF;
   --bg-overlay:     rgba(0,0,0,0.45);
 
-  --border:         #E8E6E1;
+  --border:         #E0D5C7;  /* Muted Beige */
   --border-strong:  #D1CFC9;
 
-  --text-primary:   #1C1C1E;
-  --text-secondary: #4B5563;
+  --text-primary:   #2C2C2C;  /* Charcoal */
+  --text-secondary: #666666;  /* Grey */
   --text-muted:     #9CA3AF;
   --text-inverse:   #FFFFFF;
 
-  --navy-800:       #1E3A5F;
-  --navy-900:       #0F2645;
-  --navy-500:       #3B82F6;
-  --navy-50:        #EFF6FF;
+  /* Comora Brand Colors */
+  --comora-orange:  #FF6B35;  /* Primary Accent */
+  --comora-navy:    #1F3A5E;  /* Deep Navy */
+  --comora-cream:   #F5F1E8;  /* Warm Cream */
+  --comora-charcoal:#2C2C2C;  /* Charcoal */
+  --comora-grey:    #666666;  /* Grey */
+  --comora-beige:   #E0D5C7;  /* Muted Beige */
+  --comora-success: #2ECC71;  /* Soft Green */
 
-  --amber-500:      #F59E0B;
-  --amber-400:      #FBBF24;
-  --amber-50:       #FFFBEB;
-  --amber-100:      #FEF3C7;
+  /* Category Theme Colors */
+  --category-literature:  #A86F6F;  /* Muted Burgundy */
+  --category-philosophy:  #7B68BE;  /* Soft Purple */
+  --category-film:        #6A5ACD;  /* Slate Purple */
+  --category-tech:        #4A90E2;  /* Tech Blue */
+  --category-music:       #E67E22;  /* Amber */
+  --category-science:     #27AE60;  /* Moss Green */
+  --category-career:      #E74C3C;  /* Coral Red */
+  --category-food:        #D4A574;  /* Warm Tan */
+  --category-gaming:      #9B59B6;  /* Vibrant Purple */
+  --category-social:      #16A085;  /* Teal */
 
-  --sage-500:       #10B981;
-  --sage-50:        #ECFDF5;
+  /* Semantic Tokens */
+  --accent:         var(--comora-orange);
+  --accent-hover:   #E55F2F;
+  --accent-soft:    #FFF5F0;
+  --secondary:      var(--comora-navy);
+  --secondary-hover:#152D47;
+  --warm:           var(--comora-orange);
+  --warm-soft:      #FFF5F0;
 
-  --coral-500:      #F97316;
-  --coral-400:      #FB923C;
+  /* Shadows */
+  --shadow-sm:      0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md:      0 4px 16px rgba(0,0,0,0.12);
+  --shadow-lg:      0 8px 24px rgba(0,0,0,0.16);
+  --shadow-xl:      0 20px 50px rgba(0,0,0,0.20);
 
-  --accent:         var(--navy-800);
-  --accent-hover:   var(--navy-900);
-  --accent-soft:    var(--navy-50);
-  --warm:           var(--amber-500);
-  --warm-soft:      var(--amber-50);
-
-  --shadow-sm:      0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md:      0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-  --shadow-lg:      0 10px 30px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.05);
-  --shadow-xl:      0 20px 50px rgba(0,0,0,0.12);
-
-  --radius-sm:      6px;
-  --radius-md:      10px;
-  --radius-lg:      16px;
-  --radius-xl:      24px;
+  /* Border Radius */
+  --radius-xs:      2px;
+  --radius-sm:      4px;
+  --radius-md:      8px;
+  --radius-lg:      12px;
+  --radius-xl:      16px;
   --radius-full:    9999px;
+
+  /* Spacing (4px base) */
+  --space-xs:       4px;
+  --space-sm:       8px;
+  --space-md:       16px;
+  --space-lg:       24px;
+  --space-xl:       32px;
+  --space-2xl:      48px;
+  --space-3xl:      64px;
 
   --transition:     all 0.2s cubic-bezier(0.4,0,0.2,1);
 }
 
-/* ─── Design Tokens — Dark Mode (pure black) ────────────────── */
+/* ─── Design Tokens — Dark Mode ────────────────────────────── */
 .dark {
-  --bg-base:        #000000;
-  --bg-subtle:      #0D0D0D;
-  --bg-card:        #141414;
-  --bg-elevated:    #1E1E1E;
+  /* Base Colors */
+  --bg-base:        #0D0D0D;
+  --bg-subtle:      #141414;
+  --bg-card:        #1A1A1A;
+  --bg-elevated:    #222222;
   --bg-overlay:     rgba(0,0,0,0.80);
 
-  --border:         #252525;
-  --border-strong:  #333333;
+  --border:         #2A2A2A;
+  --border-strong:  #3A3A3A;
 
   --text-primary:   #FAFAFA;
   --text-secondary: #A1A1AA;
   --text-muted:     #71717A;
   --text-inverse:   #000000;
 
-  --navy-800:       #60A5FA;
-  --navy-900:       #93C5FD;
-  --navy-500:       #60A5FA;
-  --navy-50:        #0A1628;
+  /* Comora Brand Colors (Dark Mode Adjusted) */
+  --comora-orange:  #FF8555;
+  --comora-navy:    #4A6FA5;
+  --comora-cream:   #2A2823;
+  --comora-charcoal:#E5E5E5;
+  --comora-grey:    #999999;
+  --comora-beige:   #3A3A3A;
+  --comora-success: #3FDD84;
 
-  --amber-500:      #FBBF24;
-  --amber-400:      #FCD34D;
-  --amber-50:       #1A1200;
-  --amber-100:      #241900;
+  /* Category Theme Colors (slightly brighter for dark mode) */
+  --category-literature:  #B87F7F;
+  --category-philosophy:  #8B78CE;
+  --category-film:        #7A6ADD;
+  --category-tech:        #5AA0F2;
+  --category-music:       #F68E32;
+  --category-science:     #37BE70;
+  --category-career:      #F75C4C;
+  --category-food:        #E4B584;
+  --category-gaming:      #AB69C6;
+  --category-social:      #26B095;
 
-  --sage-500:       #34D399;
-  --sage-50:        #001A0E;
-
-  --coral-500:      #FB923C;
-  --coral-400:      #FDBA74;
-
-  --accent:         var(--navy-800);
-  --accent-hover:   var(--navy-900);
-  --accent-soft:    #0D1F35;
-  --warm:           var(--amber-400);
-  --warm-soft:      #1A1200;
+  /* Semantic Tokens */
+  --accent:         var(--comora-orange);
+  --accent-hover:   #FF9A6F;
+  --accent-soft:     #2A1A15;
+  --secondary:      var(--comora-navy);
+  --secondary-hover:#5A7FB5;
+  --warm:           var(--comora-orange);
+  --warm-soft:      #2A1A15;
 
   --shadow-sm:      0 1px 3px rgba(0,0,0,0.7);
   --shadow-md:      0 4px 12px rgba(0,0,0,0.8);

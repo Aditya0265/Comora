@@ -25,12 +25,12 @@ const BUDGET_OPTIONS = [
 ]
 
 const STEP_META = [
-  { heading: 'What are you into?',             sub: 'Pick at least 2 interests. We\'ll find people who share your curiosity.' },
-  { heading: 'How social are you?',            sub: 'Be honest — there\'s no wrong answer here.' },
+  { heading: 'What are you into?',             sub: "Pick at least 2 interests. We'll find people who share your curiosity." },
+  { heading: 'How social are you?',            sub: "Be honest — there's no wrong answer here." },
   { heading: 'How large should your table be?', sub: 'Different sizes create different conversations.' },
   { heading: 'Any dietary preferences?',       sub: 'Select everything that applies to you.' },
-  { heading: 'What\'s your budget comfort?',   sub: 'We\'ll match you to events within your range.' },
-  { heading: 'One last thing — your city',     sub: 'We\'ll show you tables close to home.' },
+  { heading: "What's your budget comfort?",    sub: "We'll match you to events within your range." },
+  { heading: 'One last thing — your city',     sub: "We'll show you tables close to home." },
 ]
 
 function ProgressBar({ step }) {

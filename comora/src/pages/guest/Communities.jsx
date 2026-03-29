@@ -70,7 +70,7 @@ const communities = [
   {
     id: 6,
     name: 'Science & Society Forum',
-    tagline: 'Because science doesn\'t happen in a vacuum.',
+    tagline: "Because science doesn't happen in a vacuum.",
     category: 'Science',
     memberCount: 241,
     activeEvents: 1,
@@ -98,7 +98,7 @@ const communities = [
     category: 'Philosophy',
     memberCount: 178,
     activeEvents: 2,
-    recentTopic: 'Reading Nagel\'s "What Is It Like to Be a Bat?"',
+    recentTopic: `Reading Nagel's "What Is It Like to Be a Bat?"`,
     emoji: '💭',
     color: '#92400E',
     bg: '#FFFBEB',
