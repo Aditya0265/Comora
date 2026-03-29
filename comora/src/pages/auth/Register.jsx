@@ -16,12 +16,12 @@ const BENEFITS = [
   {
     icon: <Brain size={20} />,
     title: 'Matched to your interests',
-    desc: 'Tell us what you\'re curious about. We\'ll show you rooms where you already have something to say.',
+    desc: "Tell us what you're curious about. We'll show you rooms where you already have something to say.",
   },
   {
     icon: <Sparkles size={20} />,
     title: 'Build your community',
-    desc: 'From strangers to regulars — Comora gatherings become the friendships you didn\'t know you needed.',
+    desc: "From strangers to regulars — Comora gatherings become the friendships you didn't know you needed.",
   },
 ]
 
@@ -82,7 +82,7 @@ export default function Register() {
       if (error) {
         toast.error(error.message || 'Registration failed. Please try again.')
       } else {
-        toast.success('Account created! Let\'s set you up.')
+        toast.success("Account created! Let's set you up.")
         navigate('/onboarding')
       }
     } catch (err) {

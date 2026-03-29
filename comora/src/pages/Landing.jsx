@@ -76,12 +76,12 @@ export default function Landing() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button size="lg" onClick={() => navigate('/register')}>
-              Find Your Gathering
+            <Button size="lg" onClick={() => navigate('/auth/role-select')} style={{ background: 'var(--comora-orange)', color: 'white' }}>
+              Get Started
               <ArrowRight size={18} />
             </Button>
-            <Button size="lg" variant="secondary" onClick={() => navigate('/browse')}>
-              Browse Events
+            <Button size="lg" variant="secondary" onClick={() => navigate('/discover')} style={{ borderColor: 'var(--comora-navy)', color: 'var(--comora-navy)' }}>
+              Explore Gatherings
             </Button>
           </div>
 

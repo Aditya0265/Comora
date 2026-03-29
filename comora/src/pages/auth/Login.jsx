@@ -66,17 +66,17 @@ export default function Login() {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '1.5rem',
-        background: 'var(--bg-base)',
+        background: 'linear-gradient(135deg, var(--comora-cream) 0%, #FAF6F0 100%)',
       }}
     >
       <div
         style={{
           width: '100%',
           maxWidth: '28rem',
-          background: 'var(--bg-card)',
-          borderRadius: 'var(--radius-xl)',
-          boxShadow: 'var(--shadow-md)',
-          border: '1px solid var(--border)',
+          background: 'white',
+          borderRadius: 'var(--radius-md)',
+          boxShadow: 'var(--shadow-sm)',
+          border: '1px solid var(--comora-beige)',
           padding: '2.5rem 2rem',
         }}
       >
@@ -87,27 +87,27 @@ export default function Login() {
               width: '2.5rem',
               height: '2.5rem',
               borderRadius: 'var(--radius-md)',
-              background: 'var(--navy-800)',
+              background: 'var(--comora-navy)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}>
               <span style={{ color: '#fff', fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.02em' }}>C</span>
             </div>
-            <span style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1.125rem', letterSpacing: '-0.02em' }}>Comora</span>
+            <span style={{ color: 'var(--comora-charcoal)', fontWeight: 700, fontSize: '1.125rem', letterSpacing: '-0.02em' }}>Comora</span>
           </Link>
           <h1
             style={{
               fontSize: '1.5rem',
               fontWeight: 700,
-              color: 'var(--text-primary)',
+              color: 'var(--comora-charcoal)',
               marginBottom: '0.25rem',
               letterSpacing: '-0.02em',
             }}
           >
             Welcome back
           </h1>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--comora-grey)' }}>
             Sign in to your Comora account
           </p>
         </div>
@@ -193,13 +193,13 @@ export default function Login() {
             textAlign: 'center',
             marginTop: '1.5rem',
             fontSize: '0.875rem',
-            color: 'var(--text-muted)',
+            color: 'var(--comora-grey)',
           }}
         >
           Don't have an account?{' '}
           <Link
-            to="/register"
-            style={{ color: 'var(--amber-500)', fontWeight: 600, textDecoration: 'none' }}
+            to="/auth/role-select"
+            style={{ color: 'var(--comora-orange)', fontWeight: 600, textDecoration: 'none' }}
           >
             Create one
           </Link>

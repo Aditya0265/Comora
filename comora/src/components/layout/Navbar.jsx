@@ -11,7 +11,7 @@ import Button from '../ui/Button'
 import { cn } from '../../lib/utils'
 
 const navLinks = [
-  { to: '/browse', label: 'Discover' },
+  { to: '/discover', label: 'Discover' },
   { to: '/communities', label: 'Communities' },
 ]
 
@@ -47,10 +47,10 @@ export default function Navbar() {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0 group">
-          <div className="w-8 h-8 rounded-[var(--radius-md)] bg-[var(--navy-800)] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-[var(--radius-md)] bg-[var(--comora-navy)] flex items-center justify-center">
             <span className="text-white font-bold text-sm">C</span>
           </div>
-          <span className="font-bold text-[var(--text-primary)] text-lg tracking-tight">
+          <span className="font-bold text-[var(--comora-charcoal)] text-lg tracking-tight">
             Comora
           </span>
         </Link>
@@ -64,8 +64,8 @@ export default function Navbar() {
               className={({ isActive }) => cn(
                 'px-3 py-1.5 rounded-[var(--radius-md)] text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-[var(--accent-soft)] text-[var(--navy-800)]'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]',
+                  ? 'bg-[var(--comora-orange)] text-white'
+                  : 'text-[var(--comora-grey)] hover:text-[var(--comora-charcoal)] hover:bg-[var(--comora-cream)]',
               )}
             >
               {label}
@@ -77,8 +77,8 @@ export default function Navbar() {
               className={({ isActive }) => cn(
                 'px-3 py-1.5 rounded-[var(--radius-md)] text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-[var(--accent-soft)] text-[var(--navy-800)]'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]',
+                  ? 'bg-[var(--comora-orange)] text-white'
+                  : 'text-[var(--comora-grey)] hover:text-[var(--comora-charcoal)] hover:bg-[var(--comora-cream)]',
               )}
             >
               Host
@@ -185,11 +185,11 @@ export default function Navbar() {
             </>
           ) : (
             <div className="hidden md:flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/login')} style={{ color: 'var(--comora-navy)' }}>
                 Sign In
               </Button>
-              <Button size="sm" onClick={() => navigate('/register')}>
-                Join Comora
+              <Button size="sm" onClick={() => navigate('/auth/role-select')} style={{ background: 'var(--comora-orange)', color: 'white' }}>
+                Get Started
               </Button>
             </div>
           )}
@@ -229,11 +229,11 @@ export default function Navbar() {
           )}
           {!user ? (
             <div className="flex flex-col gap-2 pt-2 border-t border-[var(--border)]">
-              <Button variant="secondary" fullWidth onClick={() => { navigate('/login'); setMobileOpen(false) }}>
+              <Button variant="secondary" fullWidth onClick={() => { navigate('/login'); setMobileOpen(false) }} style={{ borderColor: 'var(--comora-navy)', color: 'var(--comora-navy)' }}>
                 Sign In
               </Button>
-              <Button fullWidth onClick={() => { navigate('/register'); setMobileOpen(false) }}>
-                Join Comora
+              <Button fullWidth onClick={() => { navigate('/auth/role-select'); setMobileOpen(false) }} style={{ background: 'var(--comora-orange)', color: 'white' }}>
+                Get Started
               </Button>
             </div>
           ) : (
