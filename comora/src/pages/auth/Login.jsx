@@ -17,7 +17,7 @@ export default function Login() {
   const [serverError, setServerError] = useState('')
 
   useEffect(() => {
-    if (!authLoading && user) {
+    if (!authLoading && user && profile) {
       if (profile?.role === 'admin') navigate('/admin', { replace: true })
       else navigate('/', { replace: true })
     }

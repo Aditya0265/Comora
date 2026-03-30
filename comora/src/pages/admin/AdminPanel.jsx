@@ -1312,7 +1312,7 @@ export default function AdminPanel() {
       }} className="hidden md:flex">
         {/* Logo */}
         <div style={{ padding: '1.25rem 1.25rem 1rem', borderBottom: '1px solid var(--border)' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', marginBottom: '0.625rem' }}>
+          <Link to="/admin" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', marginBottom: '0.625rem' }}>
             <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '1rem' }}>Comora</span>
           </Link>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.2rem 0.6rem', borderRadius: '9999px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
@@ -1350,9 +1350,6 @@ export default function AdminPanel() {
         </nav>
         {/* Bottom actions */}
         <div style={{ padding: '0.75rem 0.5rem', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-md)', textDecoration: 'none', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-            <ArrowLeft size={16} /> Back to site
-          </Link>
           <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-md)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.875rem', color: '#ef4444', width: '100%', textAlign: 'left' }}>
             <LogOut size={16} /> Sign Out
           </button>
