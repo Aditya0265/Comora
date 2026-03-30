@@ -61,7 +61,8 @@ function RequireHost({ children }) {
   const { user, profile, loading } = useAuth()
   if (loading) return <PageLoader />
   if (!user) return <Navigate to="/login" replace />
-  if (profile && !['host', 'admin'].includes(profile.role)) return <Navigate to="/profile?become-host=1" replace />
+  if (profile?.role === 'admin') return <Navigate to="/admin" replace />
+  if (profile && profile.role !== 'host') return <Navigate to="/profile?become-host=1" replace />
   return children
 }
 
@@ -139,9 +140,9 @@ function AppRoutes() {
           <Route path="/browse"               element={<RequireNotAdmin><RequireMatchMe><Browse /></RequireMatchMe></RequireNotAdmin>} />
           <Route path="/discover"             element={<RequireNotAdmin><RequireMatchMe><Discover /></RequireMatchMe></RequireNotAdmin>} />
           <Route path="/communities"   element={<RequireNotAdmin><Communities /></RequireNotAdmin>} />
-          <Route path="/events/:id"    element={<EventDetail />} />
-          <Route path="/gathering/:id" element={<GatheringDetail />} />
-          <Route path="/host/:id"      element={<HostProfile />} />
+          <Route path="/events/:id"    element={<RequireNotAdmin><EventDetail /></RequireNotAdmin>} />
+          <Route path="/gathering/:id" element={<RequireNotAdmin><GatheringDetail /></RequireNotAdmin>} />
+          <Route path="/host/:id"      element={<RequireNotAdmin><HostProfile /></RequireNotAdmin>} />
 
           <Route path="/onboarding"  element={<RequireNotAdmin><RequireAuth><MatchMe /></RequireAuth></RequireNotAdmin>} />
 

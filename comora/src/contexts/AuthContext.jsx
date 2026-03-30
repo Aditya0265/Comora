@@ -152,7 +152,7 @@ export function AuthProvider({ children }) {
     return { data, error }
   }
 
-  const isHost  = profile?.role === 'host'  || profile?.role === 'admin'
+  const isHost  = profile?.role === 'host'
   const isAdmin = profile?.role === 'admin'
   const needsMatchMe = user && profile && !profile.match_me_completed
 

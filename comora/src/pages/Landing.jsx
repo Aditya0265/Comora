@@ -55,7 +55,8 @@ export default function Landing() {
 
   function handleBecomeHost() {
     if (!user) return navigate('/register')
-    if (profile?.role === 'host' || profile?.role === 'admin') return navigate('/host/studio/new')
+    if (profile?.role === 'admin') return navigate('/admin')
+    if (profile?.role === 'host') return navigate('/host/studio/new')
     return navigate('/profile?become-host=1')
   }
 

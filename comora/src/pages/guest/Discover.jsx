@@ -1,236 +1,226 @@
-import { useState, useEffect } from 'react'
-import { Search } from 'lucide-react'
-import GatheringCard from '../../components/GatheringCard'
-import FilterSidebar from '../../components/FilterSidebar'
-import CategoryBadge from '../../components/ui/CategoryBadge'
-import { CATEGORIES } from '../../utils/constants'
-import { Input } from '../../components/ui/Input'
+import { useState, useMemo } from 'react'
+import { Search, Calendar, MapPin, Sparkles } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
+import AgendaCard from '../../components/events/AgendaCard'
+import Badge from '../../components/ui/Badge'
 import { supabase } from '../../lib/supabase'
 
-function normalizeCommunity(row) {
-  return {
-    id: row.id,
-    title: row.name,
-    description: row.description ?? '',
-    category: row.topic_tags?.[0]?.toLowerCase() ?? 'other',
-    host: {
-      name: row.host?.name ?? 'Unknown Host',
-      avatar: row.host?.avatar_url ?? null,
-    },
-    memberCount: row.member_count ?? 0,
-    nextEvent: null,
-    location: row.city ?? '',
-  }
+const CATEGORY_ICONS = {
+  literature: '📚', philosophy: '💭', film: '🎬',
+  technology: '🛠️', music: '🎵', science: '🔬',
+  career: '🚀', social: '🌱', food: '🍽️', art: '🎨', other: '🌐',
 }
 
 export default function Discover() {
-  const [gatherings, setGatherings] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [filters, setFilters] = useState({
-    search: '',
-    categories: [],
-    groupSizeMin: '',
-    groupSizeMax: '',
-    dietary: [],
-    sortBy: 'recommended',
+  const [search, setSearch] = useState('')
+  const [selectedTag, setSelectedTag] = useState('')
+  const [selectedCity, setSelectedCity] = useState('')
+
+  const { data: events = [], isLoading } = useQuery({
+    queryKey: ['discover-events'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*, host:profiles(name, avatar_url, host_verified)')
+        .eq('status', 'live')
+        .order('date_time', { ascending: true })
+      if (error) throw error
+      return data ?? []
+    },
+    staleTime: 60_000,
   })
 
-  const [selectedCategory, setSelectedCategory] = useState(null)
+  const filtered = useMemo(() => {
+    let list = events
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      list = list.filter(e =>
+        e.title?.toLowerCase().includes(q) ||
+        e.description?.toLowerCase().includes(q) ||
+        e.host?.name?.toLowerCase().includes(q)
+      )
+    }
+    if (selectedTag) {
+      list = list.filter(e => e.topic_tags?.includes(selectedTag) || e.agenda_type === selectedTag)
+    }
+    if (selectedCity) {
+      list = list.filter(e => e.venue_city === selectedCity)
+    }
+    return list
+  }, [events, search, selectedTag, selectedCity])
 
-  useEffect(() => {
-    supabase
-      .from('communities')
-      .select('*, host:profiles!created_by(name, avatar_url)')
-      .order('member_count', { ascending: false })
-      .then(({ data, error }) => {
-        if (!error && data) setGatherings(data.map(normalizeCommunity))
-        setLoading(false)
-      })
-  }, [])
-
-  function handleFilterChange(key, value) {
-    setFilters(prev => ({ ...prev, [key]: value }))
-  }
-
-  function handleClearFilters() {
-    setFilters({
-      search: '',
-      categories: [],
-      groupSizeMin: '',
-      groupSizeMax: '',
-      dietary: [],
-      sortBy: 'recommended',
+  const topTags = useMemo(() => {
+    const counts = {}
+    events.forEach(e => {
+      (e.topic_tags ?? []).forEach(t => { counts[t] = (counts[t] || 0) + 1 })
     })
-    setSelectedCategory(null)
-  }
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([tag]) => tag)
+  }, [events])
 
-  function toggleCategoryFilter(catId) {
-    setSelectedCategory(selectedCategory === catId ? null : catId)
-    const current = filters.categories
-    const updated = current.includes(catId)
-      ? current.filter(id => id !== catId)
-      : [catId]
-    setFilters(prev => ({ ...prev, categories: updated }))
-  }
-
-  const filteredGatherings = gatherings.filter(gathering => {
-    if (filters.search) {
-      const query = filters.search.toLowerCase()
-      const matchesSearch =
-        gathering.title.toLowerCase().includes(query) ||
-        gathering.description.toLowerCase().includes(query) ||
-        gathering.host.name.toLowerCase().includes(query)
-      if (!matchesSearch) return false
-    }
-
-    if (filters.categories.length > 0) {
-      if (!filters.categories.includes(gathering.category)) return false
-    }
-
-    return true
-  })
+  const activeCities = useMemo(() => {
+    const seen = new Set()
+    events.forEach(e => { if (e.venue_city) seen.add(e.venue_city) })
+    return [...seen].sort()
+  }, [events])
 
   return (
-    <div style={{ background: 'var(--comora-cream)', minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
-        {/* Hero Section */}
-        <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-          <h1
-            style={{
-              fontSize: '2.5rem',
-              fontWeight: '600',
-              color: 'var(--comora-charcoal)',
-              marginBottom: '0.5rem',
-              letterSpacing: '-0.02em',
-            }}
-          >
-            Find your intellectual home
+    <div className="min-h-screen" style={{ background: 'var(--bg-base)' }}>
+
+      {/* Hero */}
+      <section className="hero-gradient pt-14 pb-10">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center flex flex-col items-center gap-5">
+          <Badge variant="warm" className="gap-1.5">
+            <Sparkles size={12} />
+            Live events · Curated by local hosts
+          </Badge>
+          <h1 className="text-4xl sm:text-5xl font-bold text-[var(--text-primary)] tracking-tight leading-tight">
+            Discover events<br />
+            <span className="font-display italic" style={{ color: 'var(--comora-navy)' }}>near you</span>
           </h1>
-          <p style={{ fontSize: '1.125rem', color: 'var(--comora-grey)', marginBottom: '2rem' }}>
-            Discover gatherings that match your interests and curiosity
+          <p className="text-[var(--text-secondary)] text-base max-w-xl leading-relaxed">
+            Browse upcoming gatherings created by Comora hosts — discussions, workshops,
+            screenings, and more.
           </p>
 
-          {/* Search Bar */}
-          <div style={{ maxWidth: '600px', margin: '0 auto', position: 'relative' }}>
-            <Search
-              size={20}
-              style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--comora-grey)' }}
-            />
-            <Input
+          {/* Search */}
+          <div className="relative w-full max-w-lg mt-1">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+            <input
               type="text"
-              value={filters.search}
-              onChange={(e) => handleFilterChange('search', e.target.value)}
-              placeholder="Search gatherings, topics, or hosts..."
-              style={{ paddingLeft: '48px', fontSize: '1rem', height: '48px' }}
+              placeholder="Search events, topics, or hosts…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 rounded-[var(--radius-lg)] text-sm border border-[var(--border)] bg-[var(--bg-card)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--comora-navy)] focus:ring-2 focus:ring-[var(--accent-soft)] transition-all"
             />
           </div>
         </div>
+      </section>
 
-        {/* Category Filter Pills */}
-        <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', paddingBottom: '1rem', marginBottom: '2rem' }}>
-          {CATEGORIES.map((cat) => {
-            const Icon = cat.icon
-            const isSelected = selectedCategory === cat.id
-            return (
+      <section className="py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+
+          {/* Topic filter pills */}
+          {topTags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
               <button
-                key={cat.id}
-                onClick={() => toggleCategoryFilter(cat.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  padding: '0.75rem 1.25rem',
-                  background: isSelected ? cat.color : 'white',
-                  color: isSelected ? 'white' : cat.color,
-                  border: `2px solid ${cat.color}`,
-                  borderRadius: 'var(--radius-full)',
-                  fontSize: '0.875rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                }}
+                onClick={() => setSelectedTag('')}
+                className="px-3 py-1.5 rounded-full text-sm font-medium transition-all border"
+                style={
+                  !selectedTag
+                    ? { background: 'var(--comora-navy)', color: '#fff', borderColor: 'var(--comora-navy)' }
+                    : { background: 'var(--bg-card)', color: 'var(--text-secondary)', borderColor: 'var(--border)' }
+                }
               >
-                <Icon size={16} />
-                <span>{cat.name.split(' & ')[0]}</span>
+                All topics
               </button>
-            )
-          })}
-        </div>
-
-        {/* Main Content - Sidebar + Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '2rem', alignItems: 'start' }}>
-          {/* Filter Sidebar */}
-          <FilterSidebar
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            onClearFilters={handleClearFilters}
-          />
-
-          {/* Gatherings Grid */}
-          <div>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <p style={{ fontSize: '0.875rem', color: 'var(--comora-grey)' }}>
-                {loading ? 'Loading…' : `${filteredGatherings.length} gatherings found`}
-              </p>
-            </div>
-
-            {!loading && filteredGatherings.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
-                {filteredGatherings.map((gathering) => (
-                  <GatheringCard key={gathering.id} gathering={gathering} />
-                ))}
-              </div>
-            ) : !loading ? (
-              <div
-                style={{
-                  textAlign: 'center',
-                  padding: '4rem 2rem',
-                  background: 'white',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--comora-beige)',
-                }}
-              >
-                <div
-                  style={{
-                    width: '80px', height: '80px', margin: '0 auto 1.5rem',
-                    borderRadius: '50%', background: 'var(--comora-cream)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}
+              {topTags.map(tag => (
+                <button
+                  key={tag}
+                  onClick={() => setSelectedTag(selectedTag === tag ? '' : tag)}
+                  className="px-3 py-1.5 rounded-full text-sm font-medium transition-all border flex items-center gap-1"
+                  style={
+                    selectedTag === tag
+                      ? { background: 'var(--comora-navy)', color: '#fff', borderColor: 'var(--comora-navy)' }
+                      : { background: 'var(--bg-card)', color: 'var(--text-secondary)', borderColor: 'var(--border)' }
+                  }
                 >
-                  <Search size={32} style={{ color: 'var(--comora-grey)' }} />
-                </div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--comora-charcoal)', marginBottom: '0.5rem' }}>
-                  No gatherings found
-                </h3>
-                <p style={{ color: 'var(--comora-grey)', marginBottom: '1.5rem' }}>
-                  {gatherings.length === 0
-                    ? 'No communities have been created yet. Be the first!'
-                    : 'Try adjusting your filters or check back soon for new gatherings.'}
-                </p>
-                {gatherings.length > 0 && (
-                  <button
-                    onClick={handleClearFilters}
-                    style={{
-                      padding: '0.75rem 1.5rem',
-                      background: 'var(--comora-orange)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: 'var(--radius-sm)',
-                      fontSize: '0.875rem',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Clear Filters
-                  </button>
-                )}
-              </div>
-            ) : null}
-          </div>
+                  <span>{CATEGORY_ICONS[tag.toLowerCase()] ?? '🌐'}</span>
+                  <span className="capitalize">{tag}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* City filter */}
+          {activeCities.length > 1 && (
+            <div className="flex flex-wrap gap-2 mb-6">
+              <button
+                onClick={() => setSelectedCity('')}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border transition-all"
+                style={
+                  !selectedCity
+                    ? { background: 'var(--comora-orange)', color: '#fff', borderColor: 'var(--comora-orange)' }
+                    : { background: 'var(--bg-card)', color: 'var(--text-muted)', borderColor: 'var(--border)' }
+                }
+              >
+                <MapPin size={11} /> All cities
+              </button>
+              {activeCities.map(city => (
+                <button
+                  key={city}
+                  onClick={() => setSelectedCity(selectedCity === city ? '' : city)}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border transition-all"
+                  style={
+                    selectedCity === city
+                      ? { background: 'var(--comora-orange)', color: '#fff', borderColor: 'var(--comora-orange)' }
+                      : { background: 'var(--bg-card)', color: 'var(--text-muted)', borderColor: 'var(--border)' }
+                  }
+                >
+                  <MapPin size={11} /> {city}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Result count */}
+          <p className="text-sm text-[var(--text-muted)] mb-5">
+            {isLoading ? 'Loading events…' : `${filtered.length} event${filtered.length !== 1 ? 's' : ''} found`}
+          </p>
+
+          {/* Events grid */}
+          {isLoading ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden h-56 animate-pulse" />
+              ))}
+            </div>
+          ) : filtered.length > 0 ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {filtered.map(event => (
+                <AgendaCard key={event.id} event={event} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 flex flex-col items-center gap-4">
+              <span className="text-5xl">🔭</span>
+              <p className="font-semibold text-[var(--text-primary)]">No events found</p>
+              <p className="text-sm text-[var(--text-muted)]">
+                {events.length === 0
+                  ? 'No live events yet. Check back soon!'
+                  : 'Try a different search or topic.'}
+              </p>
+              {(search || selectedTag || selectedCity) && (
+                <button
+                  onClick={() => { setSearch(''); setSelectedTag(''); setSelectedCity('') }}
+                  className="px-4 py-2 rounded-[var(--radius-md)] text-sm font-medium border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] transition-all"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Link to full Browse */}
+          {filtered.length > 0 && (
+            <div className="text-center mt-10">
+              <p className="text-sm text-[var(--text-muted)] mb-3">Want advanced filters?</p>
+              <Link
+                to="/browse"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[var(--radius-md)] text-sm font-semibold transition-all"
+                style={{ background: 'var(--comora-navy)', color: 'white' }}
+              >
+                <Calendar size={15} />
+                Browse with full filters
+              </Link>
+            </div>
+          )}
+
         </div>
-      </div>
+      </section>
     </div>
   )
 }

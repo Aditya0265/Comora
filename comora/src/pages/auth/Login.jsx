@@ -19,7 +19,7 @@ export default function Login() {
   useEffect(() => {
     if (!authLoading && user) {
       if (profile?.role === 'admin') navigate('/admin', { replace: true })
-      else navigate('/browse', { replace: true })
+      else navigate('/', { replace: true })
     }
   }, [user, profile, authLoading, navigate])
 

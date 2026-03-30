@@ -1,6 +1,5 @@
-import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Plus, Users, Calendar, TrendingUp, Star, Edit, Eye, MessageCircle } from 'lucide-react'
+import { Plus, Users, Calendar, TrendingUp, Star, Edit, Eye } from 'lucide-react'
 import Button from '../../components/ui/Button'
 import CategoryBadge from '../../components/ui/CategoryBadge'
 import { useAuth } from '../../contexts/AuthContext'
@@ -232,7 +231,7 @@ export default function HostDashboardNew() {
                 Your Gatherings
               </h2>
               <Link
-                to="/host/gatherings"
+                to="/host/studio/new"
                 style={{
                   fontSize: '0.875rem',
                   color: 'var(--comora-orange)',
@@ -240,7 +239,7 @@ export default function HostDashboardNew() {
                   fontWeight: '500',
                 }}
               >
-                View all →
+                Create new →
               </Link>
             </div>
 
@@ -349,7 +348,7 @@ export default function HostDashboardNew() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => navigate(`/host/gatherings/${gathering.id}/events/new`)}
+                        onClick={() => navigate('/host/studio/new')}
                         style={{ flex: 1 }}
                       >
                         Create Event
@@ -357,10 +356,10 @@ export default function HostDashboardNew() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => navigate(`/host/gatherings/${gathering.id}/members`)}
+                        onClick={() => navigate(`/gathering/${gathering.id}`)}
                         style={{ flex: 1 }}
                       >
-                        View Members
+                        View Page
                       </Button>
                     </div>
                   </div>
@@ -466,20 +465,17 @@ export default function HostDashboardNew() {
                 ))}
               </div>
 
-              <Link
-                to="/host/activity"
+              <p
                 style={{
                   display: 'block',
                   textAlign: 'center',
                   marginTop: '1rem',
-                  fontSize: '0.875rem',
-                  color: 'var(--comora-orange)',
-                  textDecoration: 'none',
-                  fontWeight: '500',
+                  fontSize: '0.75rem',
+                  color: 'var(--comora-grey)',
                 }}
               >
-                View all activity →
-              </Link>
+                Showing recent activity
+              </p>
             </div>
 
             {/* Quick Actions */}
@@ -505,7 +501,7 @@ export default function HostDashboardNew() {
               >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <Link
-                    to="/host/messages"
+                    to="/host/studio/new"
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -524,11 +520,11 @@ export default function HostDashboardNew() {
                       e.currentTarget.style.background = 'transparent'
                     }}
                   >
-                    <MessageCircle size={18} />
-                    <span>View Messages</span>
+                    <Plus size={18} />
+                    <span>Create New Event</span>
                   </Link>
                   <Link
-                    to="/host/calendar"
+                    to="/browse"
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -548,7 +544,7 @@ export default function HostDashboardNew() {
                     }}
                   >
                     <Calendar size={18} />
-                    <span>Events Calendar</span>
+                    <span>Browse Events</span>
                   </Link>
                   <Link
                     to="/settings"

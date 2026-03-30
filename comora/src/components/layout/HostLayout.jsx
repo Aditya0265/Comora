@@ -36,15 +36,7 @@ export default function HostLayout() {
       {/* Logo + Host badge */}
       <div style={{ padding: '1.25rem 1.25rem 1rem', borderBottom: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-            <div style={{
-              width: '1.875rem', height: '1.875rem',
-              borderRadius: '0.5rem',
-              background: '#1E3A5F',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <span style={{ color: 'white', fontWeight: 800, fontSize: '0.8rem' }}>C</span>
-            </div>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '1rem' }}>Comora</span>
           </Link>
           {onClose && (
@@ -221,12 +213,7 @@ export default function HostLayout() {
           >
             <Menu size={20} />
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: '#1E3A5F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: 'white', fontWeight: 800, fontSize: '0.65rem' }}>C</span>
-            </div>
-            <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.9rem' }}>Host Studio</span>
-          </div>
+          <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.9rem' }}>Host Studio</span>
         </div>
 
         <main style={{ flex: 1 }}>
