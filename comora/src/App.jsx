@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
 import HostLayout from './components/layout/HostLayout'
+import SupportChat from './components/ui/SupportChat'
 
 // Pages
 import Landing       from './pages/Landing'
@@ -94,6 +95,7 @@ function MainLayout() {
         <Outlet />
       </main>
       <Footer />
+      <SupportChat />
     </div>
   )
 }

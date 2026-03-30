@@ -29,6 +29,15 @@ const DURATIONS = [60, 90, 120, 150, 180, 240]
 
 const VENUE_TYPES = ['Home', 'Café', 'Community Hall', 'Park', 'Other']
 
+// Maps display labels → DB constraint values
+const VENUE_TYPE_TO_DB = {
+  'Home': 'home', 'Café': 'cafe', 'Community Hall': 'hall', 'Park': 'park', 'Other': 'other',
+}
+// Maps DB values → display labels (for loading existing events)
+const VENUE_TYPE_FROM_DB = {
+  'home': 'Home', 'cafe': 'Café', 'hall': 'Community Hall', 'park': 'Park', 'other': 'Other',
+}
+
 const CANCELLATION_POLICIES = [
   { value: 'none', label: 'No policy' },
   { value: '24h',  label: '24 hours notice' },
@@ -680,7 +689,7 @@ export default function HostStudio() {
       date:                dt ? dt.toISOString().split('T')[0] : '',
       time:                dt ? dt.toTimeString().slice(0, 5)  : '',
       duration_minutes:    existingEvent.duration_minutes ?? 120,
-      venue_type:          existingEvent.venue_type ?? 'Home',
+      venue_type:          VENUE_TYPE_FROM_DB[existingEvent.venue_type] ?? existingEvent.venue_type ?? 'Home',
       venue_name:          existingEvent.venue_name ?? '',
       venue_city:          existingEvent.venue_city ?? '',
       price:               existingEvent.price ?? 0,
@@ -728,7 +737,7 @@ export default function HostStudio() {
       max_guests:          formData.max_guests,
       date_time:           dateTime,
       duration_minutes:    formData.duration_minutes,
-      venue_type:          formData.venue_type,
+      venue_type:          VENUE_TYPE_TO_DB[formData.venue_type] ?? formData.venue_type,
       venue_name:          formData.venue_name,
       venue_city:          formData.venue_city,
       price:               formData.price,

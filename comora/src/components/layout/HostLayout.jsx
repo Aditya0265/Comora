@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import Avatar from '../ui/Avatar'
+import SupportChat from '../ui/SupportChat'
 
 const HOST_NAV = [
   { to: '/host/dashboard',  label: 'Dashboard',     icon: LayoutDashboard },
@@ -232,6 +233,7 @@ export default function HostLayout() {
           <Outlet />
         </main>
       </div>
+      <SupportChat />
     </div>
   )
 }
