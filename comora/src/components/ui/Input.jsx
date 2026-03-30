@@ -30,7 +30,7 @@ export function Input({
             'border border-[var(--border)]',
             'placeholder:text-[var(--text-muted)]',
             'transition-all duration-150',
-            'focus:outline-none focus:border-[var(--navy-800)] focus:ring-2 focus:ring-[var(--accent-soft)]',
+            'focus:outline-none focus:border-[var(--comora-navy)] focus:ring-2 focus:ring-[var(--accent-soft)]',
             error && 'border-red-400 focus:border-red-400 focus:ring-red-100',
             Icon && 'pl-9',
             className,
@@ -62,7 +62,7 @@ export function Textarea({ label, error, hint, className = '', containerClass = 
           'border border-[var(--border)]',
           'placeholder:text-[var(--text-muted)]',
           'transition-all duration-150',
-          'focus:outline-none focus:border-[var(--navy-800)] focus:ring-2 focus:ring-[var(--accent-soft)]',
+          'focus:outline-none focus:border-[var(--comora-navy)] focus:ring-2 focus:ring-[var(--accent-soft)]',
           error && 'border-red-400',
           className,
         )}
@@ -89,7 +89,7 @@ export function Select({ label, error, hint, className = '', containerClass = ''
           'bg-[var(--bg-card)] text-[var(--text-primary)]',
           'border border-[var(--border)]',
           'transition-all duration-150',
-          'focus:outline-none focus:border-[var(--navy-800)] focus:ring-2 focus:ring-[var(--accent-soft)]',
+          'focus:outline-none focus:border-[var(--comora-navy)] focus:ring-2 focus:ring-[var(--accent-soft)]',
           error && 'border-red-400',
           className,
         )}

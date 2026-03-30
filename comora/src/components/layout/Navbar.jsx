@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import {
-  Sun, Moon, Menu, X, Bell, ChevronDown,
+  Menu, X, Bell, ChevronDown,
   User, Calendar, LogOut, Settings, Shield, PlusCircle,
 } from 'lucide-react'
-import { useTheme } from '../../contexts/ThemeContext'
 import { useAuth } from '../../contexts/AuthContext'
 import Avatar from '../ui/Avatar'
 import Button from '../ui/Button'
@@ -16,7 +15,6 @@ const navLinks = [
 ]
 
 export default function Navbar() {
-  const { theme, toggleTheme } = useTheme()
   const { user, profile, logout, isHost, isAdmin } = useAuth()
   const navigate = useNavigate()
 
@@ -102,15 +100,6 @@ export default function Navbar() {
         {/* Right actions */}
         <div className="flex items-center gap-2">
 
-          {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-[var(--radius-md)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors"
-            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-          >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-
           {user ? (
             <>
               {/* Host create event shortcut */}
@@ -188,7 +177,7 @@ export default function Navbar() {
               <Button variant="ghost" size="sm" onClick={() => navigate('/login')} style={{ color: 'var(--comora-navy)' }}>
                 Sign In
               </Button>
-              <Button size="sm" onClick={() => navigate('/auth/role-select')} style={{ background: 'var(--comora-orange)', color: 'white' }}>
+              <Button size="sm" onClick={() => navigate('/register')} style={{ background: 'var(--comora-orange)', color: 'white' }}>
                 Get Started
               </Button>
             </div>
@@ -215,7 +204,7 @@ export default function Navbar() {
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) => cn(
                 'px-3 py-2 rounded-[var(--radius-md)] text-sm font-medium',
-                isActive ? 'bg-[var(--accent-soft)] text-[var(--navy-800)]' : 'text-[var(--text-secondary)]',
+                isActive ? 'bg-[var(--accent-soft)] text-[var(--comora-navy)]' : 'text-[var(--text-secondary)]',
               )}
             >
               {label}
@@ -232,7 +221,7 @@ export default function Navbar() {
               <Button variant="secondary" fullWidth onClick={() => { navigate('/login'); setMobileOpen(false) }} style={{ borderColor: 'var(--comora-navy)', color: 'var(--comora-navy)' }}>
                 Sign In
               </Button>
-              <Button fullWidth onClick={() => { navigate('/auth/role-select'); setMobileOpen(false) }} style={{ background: 'var(--comora-orange)', color: 'white' }}>
+              <Button fullWidth onClick={() => { navigate('/register'); setMobileOpen(false) }} style={{ background: 'var(--comora-orange)', color: 'white' }}>
                 Get Started
               </Button>
             </div>

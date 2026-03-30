@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { Bell, Lock, Trash2, Moon, Sun, Globe } from 'lucide-react'
+import { Bell, Lock, Trash2, Globe } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../contexts/AuthContext'
-import { useTheme } from '../../contexts/ThemeContext'
 import { supabase } from '../../lib/supabase'
 import Button from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
@@ -16,7 +15,7 @@ function SectionCard({ title, icon: Icon, children }) {
       padding: '1.75rem',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.5rem' }}>
-        {Icon && <Icon size={18} style={{ color: 'var(--navy-800)' }} />}
+        {Icon && <Icon size={18} style={{ color: 'var(--comora-navy)' }} />}
         <h2 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)' }}>{title}</h2>
       </div>
       {children}
@@ -26,7 +25,6 @@ function SectionCard({ title, icon: Icon, children }) {
 
 export default function Settings() {
   const { user, logout } = useAuth()
-  const { theme, toggleTheme } = useTheme()
 
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword,     setNewPassword]     = useState('')
@@ -74,35 +72,6 @@ export default function Settings() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
-        {/* ── Appearance ── */}
-        <SectionCard title="Appearance" icon={Moon}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Theme</p>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                Currently using {theme === 'dark' ? 'dark' : 'light'} mode
-              </p>
-            </div>
-            <button
-              onClick={toggleTheme}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                padding: '0.5rem 1rem',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--border)',
-                background: 'var(--bg-subtle)',
-                color: 'var(--text-primary)',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                cursor: 'pointer',
-              }}
-            >
-              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-              Switch to {theme === 'dark' ? 'light' : 'dark'}
-            </button>
-          </div>
-        </SectionCard>
-
         {/* ── Notifications ── */}
         <SectionCard title="Notifications" icon={Bell}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -117,7 +86,7 @@ export default function Settings() {
                   style={{
                     width: '2.75rem', height: '1.5rem',
                     borderRadius: '9999px',
-                    background: state ? 'var(--navy-800)' : 'var(--border-strong)',
+                    background: state ? 'var(--comora-navy)' : 'var(--border-strong)',
                     border: 'none', cursor: 'pointer',
                     position: 'relative', transition: 'background 0.2s',
                   }}

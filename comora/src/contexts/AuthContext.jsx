@@ -71,6 +71,64 @@ export function AuthProvider({ children }) {
       password,
       options: { data: { name: metadata.full_name ?? '', city: metadata.city ?? '' } },
     })
+
+    // If sign-up succeeded and we have a live session (email confirmation disabled),
+    // persist all extended metadata to the profile row created by the DB trigger.
+    if (!error && data.user && data.session) {
+      const profileUpdates = {}
+
+      // Role — only allow valid DB values
+      if (metadata.role && ['guest', 'host', 'admin'].includes(metadata.role)) {
+        profileUpdates.role = metadata.role
+      }
+
+      // Basic fields
+      if (metadata.bio)   profileUpdates.bio   = metadata.bio
+      if (metadata.phone) profileUpdates.phone = metadata.phone
+      if (metadata.city)  profileUpdates.city  = metadata.city
+
+      // Attendee / MatchMe preference fields
+      if (Array.isArray(metadata.interests) && metadata.interests.length)
+        profileUpdates.interests = metadata.interests
+      if (metadata.social_comfort != null)
+        profileUpdates.social_comfort = Number(metadata.social_comfort)
+      if (metadata.preferred_group_min != null)
+        profileUpdates.preferred_group_min = Number(metadata.preferred_group_min)
+      if (metadata.preferred_group_max != null)
+        profileUpdates.preferred_group_max = Number(metadata.preferred_group_max)
+      if (Array.isArray(metadata.dietary_prefs))
+        profileUpdates.dietary_prefs = metadata.dietary_prefs
+      if (metadata.budget_range)
+        profileUpdates.budget_range = metadata.budget_range
+      if (metadata.match_me_completed != null)
+        profileUpdates.match_me_completed = Boolean(metadata.match_me_completed)
+
+      // Host-specific fields (map to existing profile columns)
+      if (Array.isArray(metadata.categories) && metadata.categories.length)
+        profileUpdates.expertise_tags = metadata.categories
+      if (metadata.group_size_min != null)
+        profileUpdates.preferred_group_min = Number(metadata.group_size_min)
+      if (metadata.group_size_max != null)
+        profileUpdates.preferred_group_max = Number(metadata.group_size_max)
+      if (Array.isArray(metadata.dietary_accommodations))
+        profileUpdates.dietary_prefs = metadata.dietary_accommodations
+
+      if (Object.keys(profileUpdates).length > 0) {
+        const { error: updateErr } = await supabase
+          .from('profiles')
+          .update(profileUpdates)
+          .eq('id', data.user.id)
+        if (updateErr) {
+          console.error('[Comora] profile metadata update failed:', updateErr.message)
+        } else {
+          // Re-fetch profile to pick up updates (especially match_me_completed)
+          // This prevents the race condition where onAuthStateChange loads the
+          // pre-update profile and needsMatchMe stays true.
+          await fetchProfile(data.user.id)
+        }
+      }
+    }
+
     return { data, error }
   }
 

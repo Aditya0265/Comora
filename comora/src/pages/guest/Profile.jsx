@@ -27,7 +27,7 @@ function SectionCard({ title, icon: Icon, children }) {
       boxShadow: 'var(--shadow-md)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.5rem' }}>
-        {Icon && <Icon size={18} style={{ color: 'var(--navy-800)' }} />}
+        {Icon && <Icon size={18} style={{ color: 'var(--comora-navy)' }} />}
         <h2 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)' }}>{title}</h2>
       </div>
       {children}
@@ -55,9 +55,9 @@ function ChipSelect({ options, value = [], onChange }) {
               borderRadius: '9999px',
               fontSize: '0.8rem',
               fontWeight: selected ? 600 : 400,
-              background: selected ? 'var(--navy-800)' : 'var(--bg-subtle)',
+              background: selected ? 'var(--comora-navy)' : 'var(--bg-subtle)',
               color: selected ? '#fff' : 'var(--text-secondary)',
-              border: selected ? '1.5px solid var(--navy-800)' : '1.5px solid var(--border)',
+              border: selected ? '1.5px solid var(--comora-navy)' : '1.5px solid var(--border)',
               cursor: 'pointer',
               transition: 'all 0.15s',
             }}
@@ -210,7 +210,7 @@ export default function ProfilePage() {
         </div>
         <button
           onClick={() => user && fetchProfile(user.id)}
-          style={{ fontSize: '0.875rem', color: 'var(--navy-800)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+          style={{ fontSize: '0.875rem', color: 'var(--comora-navy)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
         >
           Retry
         </button>
@@ -326,9 +326,9 @@ export default function ProfilePage() {
                     gap: '0.5rem',
                     padding: '0.625rem 0.875rem',
                     borderRadius: 'var(--radius-md)',
-                    border: selected ? '1.5px solid var(--navy-800)' : '1.5px solid var(--border)',
+                    border: selected ? '1.5px solid var(--comora-navy)' : '1.5px solid var(--border)',
                     background: selected ? 'var(--accent-soft)' : 'var(--bg-subtle)',
-                    color: selected ? 'var(--navy-800)' : 'var(--text-secondary)',
+                    color: selected ? 'var(--comora-navy)' : 'var(--text-secondary)',
                     fontWeight: selected ? 600 : 400,
                     fontSize: '0.8rem',
                     cursor: 'pointer',
@@ -363,7 +363,7 @@ export default function ProfilePage() {
                     gap: '1rem',
                     padding: '0.875rem 1rem',
                     borderRadius: 'var(--radius-md)',
-                    border: selected ? '1.5px solid var(--navy-800)' : '1.5px solid var(--border)',
+                    border: selected ? '1.5px solid var(--comora-navy)' : '1.5px solid var(--border)',
                     background: selected ? 'var(--accent-soft)' : 'var(--bg-subtle)',
                     cursor: 'pointer',
                     textAlign: 'left',
@@ -372,12 +372,12 @@ export default function ProfilePage() {
                 >
                   <div style={{
                     width: '1.25rem', height: '1.25rem', borderRadius: '50%', flexShrink: 0,
-                    border: selected ? '4px solid var(--navy-800)' : '2px solid var(--border)',
-                    background: selected ? 'var(--navy-800)' : 'transparent',
+                    border: selected ? '4px solid var(--comora-navy)' : '2px solid var(--border)',
+                    background: selected ? 'var(--comora-navy)' : 'transparent',
                     transition: 'all 0.15s',
                   }} />
                   <div>
-                    <p style={{ fontWeight: 600, fontSize: '0.875rem', color: selected ? 'var(--navy-800)' : 'var(--text-primary)' }}>
+                    <p style={{ fontWeight: 600, fontSize: '0.875rem', color: selected ? 'var(--comora-navy)' : 'var(--text-primary)' }}>
                       {value}. {label}
                     </p>
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{desc}</p>
@@ -428,7 +428,7 @@ export default function ProfilePage() {
         {/* ── Host pending badge ── */}
         {profile.role === 'host' && !profile.host_verified && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem 1.25rem', borderRadius: 'var(--radius-lg)', background: 'var(--bg-subtle)', border: '1px solid var(--border)' }}>
-            <Loader2 size={18} style={{ color: 'var(--amber-500)', animation: 'spin 1.5s linear infinite' }} />
+            <Loader2 size={18} style={{ color: 'var(--comora-orange)', animation: 'spin 1.5s linear infinite' }} />
             <div>
               <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Host verification pending</p>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Our team will review your application within 48 hours.</p>

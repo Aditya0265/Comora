@@ -2,10 +2,9 @@ import { useState } from 'react'
 import { NavLink, Outlet, useNavigate, Link } from 'react-router-dom'
 import {
   LayoutDashboard, PlusCircle, LogOut, ArrowLeft,
-  Menu, X, Settings, Sun, Moon, User,
+  Menu, X, Settings, User,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
-import { useTheme } from '../../contexts/ThemeContext'
 import Avatar from '../ui/Avatar'
 
 const HOST_NAV = [
@@ -15,7 +14,6 @@ const HOST_NAV = [
 
 export default function HostLayout() {
   const { profile, logout } = useAuth()
-  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -79,7 +77,7 @@ export default function HostLayout() {
           <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {profile?.name}
           </p>
-          <p style={{ fontSize: '0.75rem', color: profile?.host_verified ? '#22c55e' : 'var(--amber-500)' }}>
+          <p style={{ fontSize: '0.75rem', color: profile?.host_verified ? '#22c55e' : 'var(--comora-orange)' }}>
             {profile?.host_verified ? 'Verified host' : 'Pending verification'}
           </p>
         </div>
@@ -105,7 +103,7 @@ export default function HostLayout() {
               textDecoration: 'none',
               fontSize: '0.875rem',
               fontWeight: isActive ? 600 : 400,
-              color: isActive ? 'var(--navy-800)' : 'var(--text-secondary)',
+              color: isActive ? 'var(--comora-navy)' : 'var(--text-secondary)',
               background: isActive ? 'var(--accent-soft)' : 'transparent',
               marginBottom: '0.125rem',
               transition: 'all 0.15s',
@@ -119,21 +117,6 @@ export default function HostLayout() {
 
       {/* Bottom actions */}
       <div style={{ padding: '0.75rem 0.5rem', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
-        <button
-          onClick={toggleTheme}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '0.625rem',
-            padding: '0.5rem 0.75rem',
-            borderRadius: 'var(--radius-md)',
-            background: 'none', border: 'none', cursor: 'pointer',
-            fontSize: '0.875rem', color: 'var(--text-secondary)',
-            width: '100%', textAlign: 'left',
-          }}
-        >
-          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-          {theme === 'dark' ? 'Light mode' : 'Dark mode'}
-        </button>
-
         <Link
           to="/profile"
           onClick={onClose}

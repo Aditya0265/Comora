@@ -57,7 +57,7 @@ export default function CodeOfConduct() {
             >
               <span
                 className="text-sm font-bold shrink-0 mt-0.5"
-                style={{ color: 'var(--navy-800)' }}
+                style={{ color: 'var(--comora-navy)' }}
               >
                 {rule.n}
               </span>
@@ -71,7 +71,7 @@ export default function CodeOfConduct() {
 
         <div
           className="mt-10 p-6 rounded-[var(--radius-xl)]"
-          style={{ background: 'var(--bg-subtle)', borderLeft: '3px solid var(--amber-500)' }}
+          style={{ background: 'var(--bg-subtle)', borderLeft: '3px solid var(--comora-orange)' }}
         >
           <p className="text-sm text-[var(--text-secondary)] leading-relaxed italic">
             "We are not just creating better dinners. We are creating better habits of thought,

@@ -11,9 +11,6 @@ import HostLayout from './components/layout/HostLayout'
 import Landing       from './pages/Landing'
 import Login         from './pages/auth/Login'
 import Register      from './pages/auth/Register'
-import RoleSelect    from './pages/auth/RoleSelect'
-import HostSignup    from './pages/auth/HostSignup'
-import AttendeeSignup from './pages/auth/AttendeeSignup'
 import MatchMe       from './pages/auth/MatchMe'
 import Browse        from './pages/guest/Browse'
 import Discover      from './pages/guest/Discover'
@@ -43,7 +40,7 @@ function PageLoader() {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-base)' }}>
       <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center animate-pulse" style={{ background: 'var(--navy-800)' }}>
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center animate-pulse" style={{ background: 'var(--comora-navy)' }}>
           <span className="text-white font-bold">C</span>
         </div>
         <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading…</p>
@@ -72,6 +69,13 @@ function RequireAdmin({ children }) {
   if (loading) return <PageLoader />
   if (!user) return <Navigate to="/login" replace />
   if (profile && profile.role !== 'admin') return <Navigate to="/browse" replace />
+  return children
+}
+
+function RequireNotAdmin({ children }) {
+  const { profile, loading } = useAuth()
+  if (loading) return <PageLoader />
+  if (profile?.role === 'admin') return <Navigate to="/admin" replace />
   return children
 }
 
@@ -127,21 +131,21 @@ function AppRoutes() {
           <Route path="/"                     element={<Landing />} />
           <Route path="/login"                element={<Login />} />
           <Route path="/register"             element={<Register />} />
-          <Route path="/auth/role-select"     element={<RoleSelect />} />
-          <Route path="/auth/host/signup"     element={<HostSignup />} />
-          <Route path="/auth/attendee/signup" element={<AttendeeSignup />} />
-          <Route path="/browse"               element={<RequireMatchMe><Browse /></RequireMatchMe>} />
-          <Route path="/discover"             element={<RequireMatchMe><Discover /></RequireMatchMe>} />
-          <Route path="/communities"   element={<Communities />} />
+          <Route path="/auth/role-select"     element={<Navigate to="/register" replace />} />
+          <Route path="/auth/host/signup"     element={<Navigate to="/register" replace />} />
+          <Route path="/auth/attendee/signup" element={<Navigate to="/register" replace />} />
+          <Route path="/browse"               element={<RequireNotAdmin><RequireMatchMe><Browse /></RequireMatchMe></RequireNotAdmin>} />
+          <Route path="/discover"             element={<RequireNotAdmin><RequireMatchMe><Discover /></RequireMatchMe></RequireNotAdmin>} />
+          <Route path="/communities"   element={<RequireNotAdmin><Communities /></RequireNotAdmin>} />
           <Route path="/events/:id"    element={<EventDetail />} />
           <Route path="/gathering/:id" element={<GatheringDetail />} />
           <Route path="/host/:id"      element={<HostProfile />} />
 
-          <Route path="/onboarding"  element={<RequireAuth><MatchMe /></RequireAuth>} />
+          <Route path="/onboarding"  element={<RequireNotAdmin><RequireAuth><MatchMe /></RequireAuth></RequireNotAdmin>} />
 
-          <Route path="/my-bookings" element={<RequireAuth><MyBookings /></RequireAuth>} />
-          <Route path="/profile"     element={<RequireAuth><Profile /></RequireAuth>} />
-          <Route path="/settings"    element={<RequireAuth><Settings /></RequireAuth>} />
+          <Route path="/my-bookings" element={<RequireNotAdmin><RequireAuth><MyBookings /></RequireAuth></RequireNotAdmin>} />
+          <Route path="/profile"     element={<RequireNotAdmin><RequireAuth><Profile /></RequireAuth></RequireNotAdmin>} />
+          <Route path="/settings"    element={<RequireNotAdmin><RequireAuth><Settings /></RequireAuth></RequireNotAdmin>} />
 
           <Route path="/privacy"         element={<Privacy />} />
           <Route path="/terms"           element={<Terms />} />

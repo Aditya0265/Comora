@@ -27,7 +27,7 @@ export default function Privacy() {
           </section>
           <section>
             <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-3">Your rights</h2>
-            <p>You can request deletion of your account and associated data at any time by contacting us at <span className="text-[var(--navy-800)]">hello@comora.app</span>. Profile data can be edited from your account settings.</p>
+            <p>You can request deletion of your account and associated data at any time by contacting us at <span className="text-[var(--comora-navy)]">hello@comora.app</span>. Profile data can be edited from your account settings.</p>
           </section>
           <section>
             <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-3">Cookies</h2>

@@ -8,7 +8,7 @@ export default function Footer() {
         {/* Brand */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[var(--navy-800)] flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-[var(--comora-navy)] flex items-center justify-center">
               <span className="text-white font-bold text-xs">C</span>
             </div>
             <span className="font-bold text-[var(--text-primary)]">Comora</span>

@@ -1,111 +1,64 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Users, Flame, BookOpen, Calendar, ArrowRight, Search } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
+import { useAuth } from '../../contexts/AuthContext'
+import { supabase } from '../../lib/supabase'
 
 const INTERESTS = ['All', 'Literature', 'Film', 'Philosophy', 'Technology', 'Music', 'Science', 'Career']
 
-const communities = [
-  {
-    id: 1,
-    name: 'Hyderabad Book Circle',
-    tagline: 'One book, one city, one conversation at a time.',
-    category: 'Literature',
-    memberCount: 412,
-    activeEvents: 3,
-    recentTopic: 'Discussing "The God of Small Things" this month',
-    emoji: '📚',
-    color: '#1E3A5F',
-    bg: '#EFF6FF',
-  },
-  {
-    id: 2,
-    name: 'Applied Ethics in AI',
-    tagline: 'Where philosophy meets machine learning.',
-    category: 'Philosophy',
-    memberCount: 289,
-    activeEvents: 2,
-    recentTopic: 'Next: Is AGI alignment a political problem?',
-    emoji: '🧠',
-    color: '#5B21B6',
-    bg: '#EDE9FE',
-  },
-  {
-    id: 3,
-    name: 'Bengaluru Film Collective',
-    tagline: 'Cinema as a lens for understanding the world.',
-    category: 'Film',
-    memberCount: 534,
-    activeEvents: 5,
-    recentTopic: 'Kubrick retrospective continues with 2001',
-    emoji: '🎬',
-    color: '#7E22CE',
-    bg: '#FDF4FF',
-  },
-  {
-    id: 4,
-    name: 'Mumbai Design & UX Guild',
-    tagline: 'Designers who critique, learn, and build together.',
-    category: 'Technology',
-    memberCount: 318,
-    activeEvents: 4,
-    recentTopic: 'Portfolio review night — Friday 8 PM',
-    emoji: '🛠️',
-    color: '#0369A1',
-    bg: '#F0F9FF',
-  },
-  {
-    id: 5,
-    name: 'Indie Music Explorers',
-    tagline: 'Sharing rare records and unheard artists.',
-    category: 'Music',
-    memberCount: 196,
-    activeEvents: 2,
-    recentTopic: 'Listening session: Carnatic Jazz Fusion',
-    emoji: '🎵',
-    color: '#9A3412',
-    bg: '#FFF7ED',
-  },
-  {
-    id: 6,
-    name: 'Science & Society Forum',
-    tagline: "Because science doesn't happen in a vacuum.",
-    category: 'Science',
-    memberCount: 241,
-    activeEvents: 1,
-    recentTopic: 'Bioethics panel: gene editing and consent',
-    emoji: '🔬',
-    color: '#15803D',
-    bg: '#F0FDF4',
-  },
-  {
-    id: 7,
-    name: 'Early Career Collective',
-    tagline: 'Real talk about work, growth, and ambition.',
-    category: 'Career',
-    memberCount: 603,
-    activeEvents: 6,
-    recentTopic: 'Salary negotiation masterclass — Sunday',
-    emoji: '🚀',
-    color: '#065F46',
-    bg: '#ECFDF5',
-  },
-  {
-    id: 8,
-    name: 'Philosophy of Mind Circle',
-    tagline: 'Consciousness, free will, and the hard problem.',
-    category: 'Philosophy',
-    memberCount: 178,
-    activeEvents: 2,
-    recentTopic: `Reading Nagel's "What Is It Like to Be a Bat?"`,
-    emoji: '💭',
-    color: '#92400E',
-    bg: '#FFFBEB',
-  },
-]
+const CATEGORY_META = {
+  Literature: { emoji: '📚', color: '#1E3A5F', bg: '#EFF6FF' },
+  Philosophy: { emoji: '💭', color: '#5B21B6', bg: '#EDE9FE' },
+  Film:       { emoji: '🎬', color: '#7E22CE', bg: '#FDF4FF' },
+  Technology: { emoji: '🛠️', color: '#0369A1', bg: '#F0F9FF' },
+  Music:      { emoji: '🎵', color: '#9A3412', bg: '#FFF7ED' },
+  Science:    { emoji: '🔬', color: '#15803D', bg: '#F0FDF4' },
+  Career:     { emoji: '🚀', color: '#065F46', bg: '#ECFDF5' },
+}
+const DEFAULT_META = { emoji: '🌐', color: '#1E3A5F', bg: '#EFF6FF' }
+
+function normalizeCommunity(row) {
+  const category = row.topic_tags?.[0] ?? 'Other'
+  const meta = CATEGORY_META[category] ?? DEFAULT_META
+  return {
+    id: row.id,
+    name: row.name,
+    tagline: row.description ?? '',
+    category,
+    memberCount: row.member_count ?? 0,
+    activeEvents: 0,
+    recentTopic: row.description ?? '',
+    ...meta,
+  }
+}
 
 function CommunityCard({ community }) {
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const [joining, setJoining] = useState(false)
+
+  async function handleJoin() {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    setJoining(true)
+    try {
+      const { error } = await supabase
+        .from('community_members')
+        .upsert({ community_id: community.id, user_id: user.id }, { onConflict: 'community_id,user_id' })
+      if (error) throw error
+      toast.success(`Joined ${community.name}!`)
+    } catch (err) {
+      toast.error(err.message || 'Could not join community. Please try again.')
+    } finally {
+      setJoining(false)
+    }
+  }
+
   return (
     <div className="card-hover rounded-[var(--radius-xl)] overflow-hidden flex flex-col">
       {/* Top accent strip */}
@@ -130,13 +83,15 @@ function CommunityCard({ community }) {
         </div>
 
         {/* Recent activity */}
-        <div
-          className="flex items-start gap-2 p-3 rounded-[var(--radius-md)] text-xs"
-          style={{ background: 'var(--bg-subtle)' }}
-        >
-          <Flame size={13} className="shrink-0 mt-0.5" style={{ color: community.color }} />
-          <span className="text-[var(--text-secondary)]">{community.recentTopic}</span>
-        </div>
+        {community.recentTopic && (
+          <div
+            className="flex items-start gap-2 p-3 rounded-[var(--radius-md)] text-xs"
+            style={{ background: 'var(--bg-subtle)' }}
+          >
+            <Flame size={13} className="shrink-0 mt-0.5" style={{ color: community.color }} />
+            <span className="text-[var(--text-secondary)]">{community.recentTopic}</span>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="flex items-center gap-4 mt-auto pt-1">
@@ -144,23 +99,27 @@ function CommunityCard({ community }) {
             <Users size={12} />
             <span>{community.memberCount.toLocaleString()} members</span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
-            <Calendar size={12} />
-            <span>{community.activeEvents} upcoming</span>
-          </div>
+          {community.activeEvents > 0 && (
+            <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
+              <Calendar size={12} />
+              <span>{community.activeEvents} upcoming</span>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Footer */}
       <div className="px-5 py-3 border-t border-[var(--border)] flex items-center justify-between">
         <Link
-          to="/browse"
+          to={`/gathering/${community.id}`}
           className="text-xs font-medium flex items-center gap-1 transition-all hover:gap-2"
           style={{ color: community.color }}
         >
-          View events <ArrowRight size={12} />
+          View details <ArrowRight size={12} />
         </Link>
-        <Button size="sm" variant="outline">Join</Button>
+        <Button size="sm" variant="outline" onClick={handleJoin} disabled={joining}>
+          {joining ? 'Joining…' : 'Join'}
+        </Button>
       </div>
     </div>
   )
@@ -169,6 +128,41 @@ function CommunityCard({ community }) {
 export default function Communities() {
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState('All')
+  const [communities, setCommunities] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      const { data: commsData, error } = await supabase
+        .from('communities')
+        .select('*')
+        .order('member_count', { ascending: false })
+
+      if (error || !commsData) { setLoading(false); return }
+
+      // Fetch upcoming event counts per community
+      const { data: eventCounts } = await supabase
+        .from('events')
+        .select('community_id')
+        .in('status', ['approved', 'live'])
+        .gte('date_time', new Date().toISOString())
+        .not('community_id', 'is', null)
+
+      const countMap = {}
+      if (eventCounts) {
+        eventCounts.forEach(e => {
+          if (e.community_id) countMap[e.community_id] = (countMap[e.community_id] || 0) + 1
+        })
+      }
+
+      setCommunities(commsData.map(row => ({
+        ...normalizeCommunity(row),
+        activeEvents: countMap[row.id] || 0,
+      })))
+      setLoading(false)
+    }
+    load()
+  }, [])
 
   const filtered = communities.filter(c => {
     const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -190,7 +184,7 @@ export default function Communities() {
 
           <h1 className="text-4xl sm:text-5xl font-bold text-[var(--text-primary)] leading-tight tracking-tight">
             Find your{' '}
-            <span className="font-display italic" style={{ color: 'var(--navy-800)' }}>intellectual home</span>
+            <span className="font-display italic" style={{ color: 'var(--comora-navy)' }}>intellectual home</span>
           </h1>
 
           <p className="text-lg text-[var(--text-secondary)] max-w-2xl leading-relaxed">
@@ -206,7 +200,7 @@ export default function Communities() {
               placeholder="Search communities…"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-[var(--radius-lg)] text-sm border border-[var(--border)] bg-[var(--bg-card)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--navy-800)] focus:ring-2 focus:ring-[var(--accent-soft)] transition-all"
+              className="w-full pl-10 pr-4 py-3 rounded-[var(--radius-lg)] text-sm border border-[var(--border)] bg-[var(--bg-card)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--comora-navy)] focus:ring-2 focus:ring-[var(--accent-soft)] transition-all"
             />
           </div>
         </div>
@@ -225,7 +219,7 @@ export default function Communities() {
                 className="px-4 py-1.5 rounded-full text-sm font-medium transition-all border"
                 style={
                   activeFilter === tag
-                    ? { background: 'var(--navy-800)', color: '#fff', borderColor: 'var(--navy-800)' }
+                    ? { background: 'var(--comora-navy)', color: '#fff', borderColor: 'var(--comora-navy)' }
                     : { background: 'var(--bg-card)', color: 'var(--text-secondary)', borderColor: 'var(--border)' }
                 }
               >
@@ -234,27 +228,39 @@ export default function Communities() {
             ))}
           </div>
 
-          {/* Count */}
-          <p className="text-sm text-[var(--text-muted)] mb-6">
-            {filtered.length} {filtered.length === 1 ? 'community' : 'communities'} found
-          </p>
-
-          {/* Grid */}
-          {filtered.length > 0 ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {filtered.map(c => (
-                <CommunityCard key={c.id} community={c} />
-              ))}
-            </div>
+          {loading ? (
+            <div className="text-center py-20 text-[var(--text-muted)] text-sm">Loading communities…</div>
           ) : (
-            <div className="text-center py-20 flex flex-col items-center gap-4">
-              <span className="text-5xl">🔭</span>
-              <p className="font-semibold text-[var(--text-primary)]">No communities match your search</p>
-              <p className="text-sm text-[var(--text-muted)]">Try a different keyword or browse all categories.</p>
-              <Button variant="outline" onClick={() => { setSearch(''); setActiveFilter('All') }}>
-                Clear filters
-              </Button>
-            </div>
+            <>
+              {/* Count */}
+              <p className="text-sm text-[var(--text-muted)] mb-6">
+                {filtered.length} {filtered.length === 1 ? 'community' : 'communities'} found
+              </p>
+
+              {/* Grid */}
+              {filtered.length > 0 ? (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  {filtered.map(c => (
+                    <CommunityCard key={c.id} community={c} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-20 flex flex-col items-center gap-4">
+                  <span className="text-5xl">🔭</span>
+                  <p className="font-semibold text-[var(--text-primary)]">No communities yet</p>
+                  <p className="text-sm text-[var(--text-muted)]">
+                    {communities.length === 0
+                      ? 'Be the first to start one!'
+                      : 'Try a different keyword or browse all categories.'}
+                  </p>
+                  {communities.length > 0 && (
+                    <Button variant="outline" onClick={() => { setSearch(''); setActiveFilter('All') }}>
+                      Clear filters
+                    </Button>
+                  )}
+                </div>
+              )}
+            </>
           )}
 
         </div>

@@ -124,20 +124,20 @@ export default function AttendeeSignup() {
       const { data, error } = await register(formData.email, formData.password, {
         full_name: formData.fullName,
         city: formData.city,
-        role: 'attendee',
-        age: formData.age,
+        role: 'guest',
         interests: formData.interests,
-        dietary_preferences: formData.dietaryPreferences,
-        budget_range: formData.budgetRange,
-        social_comfort: formData.socialComfort,
-        availability: formData.availability,
+        dietary_prefs: formData.dietaryPreferences,
+        budget_range: formData.budgetRange || 'moderate',
+        social_comfort: formData.socialComfort ? Number(formData.socialComfort) : 3,
+        // Preferences were collected here — skip MatchMe onboarding
+        match_me_completed: formData.interests.length >= 2,
       })
 
       if (error) {
         toast.error(error.message || 'Registration failed')
       } else {
         toast.success('Welcome to Comora! Start exploring gatherings.')
-        navigate('/discover')
+        navigate('/browse')
       }
     } catch (err) {
       toast.error('Something went wrong. Please try again.')

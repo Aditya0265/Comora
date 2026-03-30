@@ -197,10 +197,10 @@ export default function HostDashboard() {
 
         {/* ── Verification banner ──────────────────────────────────────────── */}
         {profile && !profile.host_verified && (
-          <div className="flex items-start gap-4 bg-[var(--amber-500)]/10 border border-[var(--amber-500)]/40 rounded-[var(--radius-xl)] p-4 mb-8">
-            <ShieldAlert size={20} className="text-[var(--amber-500)] shrink-0 mt-0.5" />
+          <div className="flex items-start gap-4 bg-[var(--comora-orange)]/10 border border-[var(--comora-orange)]/40 rounded-[var(--radius-xl)] p-4 mb-8">
+            <ShieldAlert size={20} className="text-[var(--comora-orange)] shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-[var(--amber-500)]">Get Verified as a Host</p>
+              <p className="text-sm font-semibold text-[var(--comora-orange)]">Get Verified as a Host</p>
               <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                 Verification builds trust with guests and unlocks higher event limits.
               </p>
@@ -225,7 +225,7 @@ export default function HostDashboard() {
 
           {eventsLoading ? (
             <div className="flex justify-center py-12">
-              <div className="w-8 h-8 border-2 border-[var(--navy-800)] border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-2 border-[var(--comora-navy)] border-t-transparent rounded-full animate-spin" />
             </div>
           ) : events.length === 0 ? (
             <div className="flex flex-col items-center gap-4 py-14 bg-[var(--bg-card)] border border-[var(--border)] rounded-[var(--radius-xl)]">
@@ -315,7 +315,7 @@ export default function HostDashboard() {
 
                           {guestsLoading ? (
                             <div className="flex justify-center py-6">
-                              <div className="w-6 h-6 border-2 border-[var(--navy-800)] border-t-transparent rounded-full animate-spin" />
+                              <div className="w-6 h-6 border-2 border-[var(--comora-navy)] border-t-transparent rounded-full animate-spin" />
                             </div>
                           ) : eventGuests.length === 0 ? (
                             <p className="text-sm text-[var(--text-muted)] text-center py-6">
@@ -492,8 +492,8 @@ export default function HostDashboard() {
         size="md"
       >
         <div className="flex flex-col gap-5">
-          <div className="bg-[var(--amber-500)]/10 border border-[var(--amber-500)]/30 rounded-[var(--radius-md)] p-4">
-            <p className="text-sm font-medium text-[var(--amber-500)] mb-1">How it works</p>
+          <div className="bg-[var(--comora-orange)]/10 border border-[var(--comora-orange)]/30 rounded-[var(--radius-md)] p-4">
+            <p className="text-sm font-medium text-[var(--comora-orange)] mb-1">How it works</p>
             <p className="text-xs text-[var(--text-secondary)]">
               Submit your phone number and a short note. Our team will reach out to verify your identity via a quick call or document check. This is a simulated process for the MVP.
             </p>
@@ -504,7 +504,7 @@ export default function HostDashboard() {
               <label className="text-sm font-medium text-[var(--text-primary)]">Phone Number</label>
               <input
                 type="tel"
-                className="w-full px-3 py-2.5 rounded-[var(--radius-md)] text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--navy-800)] focus:ring-2 focus:ring-[var(--accent-soft)]"
+                className="w-full px-3 py-2.5 rounded-[var(--radius-md)] text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--comora-navy)] focus:ring-2 focus:ring-[var(--accent-soft)]"
                 placeholder="+91 98765 43210"
                 value={verifyPhone}
                 onChange={(e) => setVerifyPhone(e.target.value)}
@@ -515,7 +515,7 @@ export default function HostDashboard() {
                 About You <span className="text-[var(--text-muted)] font-normal">(optional)</span>
               </label>
               <textarea
-                className="w-full px-3 py-2.5 rounded-[var(--radius-md)] text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--navy-800)] focus:ring-2 focus:ring-[var(--accent-soft)] resize-y min-h-[80px]"
+                className="w-full px-3 py-2.5 rounded-[var(--radius-md)] text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--comora-navy)] focus:ring-2 focus:ring-[var(--accent-soft)] resize-y min-h-[80px]"
                 placeholder="Tell us a bit about yourself and your hosting experience…"
                 value={verifyNote}
                 onChange={(e) => setVerifyNote(e.target.value)}

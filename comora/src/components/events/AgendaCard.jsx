@@ -54,7 +54,7 @@ function AgendaCard({ event, compact = false }) {
   return (
     <Link
       to={`/events/${id}`}
-      className="block group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--navy-800)] focus-visible:ring-offset-2 rounded-[var(--radius-xl)]"
+      className="block group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--comora-navy)] focus-visible:ring-offset-2 rounded-[var(--radius-xl)]"
     >
       <article className="card-hover rounded-[var(--radius-xl)] overflow-hidden flex flex-col h-full">
 
@@ -78,7 +78,7 @@ function AgendaCard({ event, compact = false }) {
           </div>
 
           {/* Title */}
-          <h3 className="text-[var(--text-primary)] font-semibold text-base leading-snug group-hover:text-[var(--navy-800)] transition-colors">
+          <h3 className="text-[var(--text-primary)] font-semibold text-base leading-snug group-hover:text-[var(--comora-navy)] transition-colors">
             {truncate(title, 60)}
           </h3>
 
@@ -114,7 +114,7 @@ function AgendaCard({ event, compact = false }) {
               <div className="flex items-center gap-2 text-[var(--text-secondary)] text-xs">
                 <Users size={13} className="shrink-0 text-[var(--text-muted)]" />
                 <span>
-                  <span className={isFull ? 'text-[var(--amber-500)] font-medium' : ''}>
+                  <span className={isFull ? 'text-[var(--comora-orange)] font-medium' : ''}>
                     {current_guests ?? 0}
                   </span>
                   {' / '}{max_guests} spots
@@ -182,7 +182,7 @@ function AgendaCard({ event, compact = false }) {
             {/* Rating */}
             {avg_overall != null && (
               <div className="flex items-center gap-1 text-xs text-[var(--text-secondary)]">
-                <Star size={12} className="text-[var(--amber-500)] fill-[var(--amber-500)]" />
+                <Star size={12} className="text-[var(--comora-orange)] fill-[var(--comora-orange)]" />
                 <span className="font-medium">{Number(avg_overall).toFixed(1)}</span>
                 {review_count > 0 && (
                   <span className="text-[var(--text-muted)]">({review_count})</span>
@@ -203,7 +203,7 @@ function AgendaCard({ event, compact = false }) {
             </span>
 
             {/* CTA arrow */}
-            <span className="inline-flex items-center gap-0.5 text-xs font-medium text-[var(--navy-800)] group-hover:gap-1.5 transition-all">
+            <span className="inline-flex items-center gap-0.5 text-xs font-medium text-[var(--comora-navy)] group-hover:gap-1.5 transition-all">
               View <ArrowRight size={12} />
             </span>
           </div>

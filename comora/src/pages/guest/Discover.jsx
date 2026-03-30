@@ -1,112 +1,31 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search } from 'lucide-react'
 import GatheringCard from '../../components/GatheringCard'
 import FilterSidebar from '../../components/FilterSidebar'
 import CategoryBadge from '../../components/ui/CategoryBadge'
 import { CATEGORIES } from '../../utils/constants'
 import { Input } from '../../components/ui/Input'
+import { supabase } from '../../lib/supabase'
 
-// Mock data for development - replace with real data from Supabase
-const MOCK_GATHERINGS = [
-  {
-    id: 1,
-    title: 'Philosophy & Coffee: Existentialism Deep Dive',
-    description: 'Weekly gathering to explore existentialist philosophy over artisan coffee. We discuss Sartre, Camus, and modern interpretations.',
-    category: 'philosophy',
+function normalizeCommunity(row) {
+  return {
+    id: row.id,
+    title: row.name,
+    description: row.description ?? '',
+    category: row.topic_tags?.[0]?.toLowerCase() ?? 'other',
     host: {
-      name: 'Arjun Mehta',
-      avatar: null,
+      name: row.host?.name ?? 'Unknown Host',
+      avatar: row.host?.avatar_url ?? null,
     },
-    memberCount: 24,
-    nextEvent: {
-      title: 'Being and Nothingness Discussion',
-      date: 'Apr 5, 2026 • 10:00 AM',
-    },
-    location: 'Bangalore',
-  },
-  {
-    id: 2,
-    title: 'Sci-Fi Book Club',
-    description: 'Monthly meetup for science fiction enthusiasts. Currently reading The Three-Body Problem trilogy.',
-    category: 'literature',
-    host: {
-      name: 'Priya Singh',
-      avatar: null,
-    },
-    memberCount: 42,
-    nextEvent: {
-      title: 'The Dark Forest - Chapter Discussion',
-      date: 'Apr 8, 2026 • 6:00 PM',
-    },
-    location: 'Mumbai',
-  },
-  {
-    id: 3,
-    title: 'Indie Film Screenings',
-    description: 'Showcase of independent and international cinema followed by thoughtful discussions.',
-    category: 'film',
-    host: {
-      name: 'Rahul Kapoor',
-      avatar: null,
-    },
-    memberCount: 38,
-    nextEvent: {
-      title: 'Parasite Screening & Analysis',
-      date: 'Apr 12, 2026 • 7:30 PM',
-    },
-    location: 'Delhi',
-  },
-  {
-    id: 4,
-    title: 'React & Modern Web Dev',
-    description: 'Hands-on workshops for building modern web applications. All skill levels welcome.',
-    category: 'tech',
-    host: {
-      name: 'Vikram Patel',
-      avatar: null,
-    },
-    memberCount: 56,
-    nextEvent: {
-      title: 'Building with Next.js 15',
-      date: 'Apr 10, 2026 • 3:00 PM',
-    },
-    location: 'Bangalore',
-  },
-  {
-    id: 5,
-    title: 'Classical Music Appreciation',
-    description: 'Explore the beauty of Indian classical music through listening sessions and live performances.',
-    category: 'music',
-    host: {
-      name: 'Lakshmi Iyer',
-      avatar: null,
-    },
-    memberCount: 31,
-    nextEvent: {
-      title: 'Raag Yaman Evening',
-      date: 'Apr 15, 2026 • 5:00 PM',
-    },
-    location: 'Chennai',
-  },
-  {
-    id: 6,
-    title: 'Climate Action Network',
-    description: 'Community organizing for local environmental initiatives and climate activism.',
-    category: 'social',
-    host: {
-      name: 'Ananya Desai',
-      avatar: null,
-    },
-    memberCount: 67,
-    nextEvent: {
-      title: 'Beach Cleanup Drive',
-      date: 'Apr 6, 2026 • 7:00 AM',
-    },
-    location: 'Mumbai',
-  },
-]
+    memberCount: row.member_count ?? 0,
+    nextEvent: null,
+    location: row.city ?? '',
+  }
+}
 
 export default function Discover() {
+  const [gatherings, setGatherings] = useState([])
+  const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({
     search: '',
     categories: [],
@@ -117,6 +36,17 @@ export default function Discover() {
   })
 
   const [selectedCategory, setSelectedCategory] = useState(null)
+
+  useEffect(() => {
+    supabase
+      .from('communities')
+      .select('*, host:profiles!created_by(name, avatar_url)')
+      .order('member_count', { ascending: false })
+      .then(({ data, error }) => {
+        if (!error && data) setGatherings(data.map(normalizeCommunity))
+        setLoading(false)
+      })
+  }, [])
 
   function handleFilterChange(key, value) {
     setFilters(prev => ({ ...prev, [key]: value }))
@@ -143,9 +73,7 @@ export default function Discover() {
     setFilters(prev => ({ ...prev, categories: updated }))
   }
 
-  // Filter gatherings based on current filters
-  const filteredGatherings = MOCK_GATHERINGS.filter(gathering => {
-    // Search filter
+  const filteredGatherings = gatherings.filter(gathering => {
     if (filters.search) {
       const query = filters.search.toLowerCase()
       const matchesSearch =
@@ -155,7 +83,6 @@ export default function Discover() {
       if (!matchesSearch) return false
     }
 
-    // Category filter
     if (filters.categories.length > 0) {
       if (!filters.categories.includes(gathering.category)) return false
     }
@@ -165,13 +92,7 @@ export default function Discover() {
 
   return (
     <div style={{ background: 'var(--comora-cream)', minHeight: 'calc(100vh - 64px)' }}>
-      <div
-        style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '2rem 1rem',
-        }}
-      >
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
         {/* Hero Section */}
         <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
           <h1
@@ -190,47 +111,23 @@ export default function Discover() {
           </p>
 
           {/* Search Bar */}
-          <div
-            style={{
-              maxWidth: '600px',
-              margin: '0 auto',
-              position: 'relative',
-            }}
-          >
+          <div style={{ maxWidth: '600px', margin: '0 auto', position: 'relative' }}>
             <Search
               size={20}
-              style={{
-                position: 'absolute',
-                left: '16px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'var(--comora-grey)',
-              }}
+              style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--comora-grey)' }}
             />
             <Input
               type="text"
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
               placeholder="Search gatherings, topics, or hosts..."
-              style={{
-                paddingLeft: '48px',
-                fontSize: '1rem',
-                height: '48px',
-              }}
+              style={{ paddingLeft: '48px', fontSize: '1rem', height: '48px' }}
             />
           </div>
         </div>
 
         {/* Category Filter Pills */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.75rem',
-            overflowX: 'auto',
-            paddingBottom: '1rem',
-            marginBottom: '2rem',
-          }}
-        >
+        <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', paddingBottom: '1rem', marginBottom: '2rem' }}>
           {CATEGORIES.map((cat) => {
             const Icon = cat.icon
             const isSelected = selectedCategory === cat.id
@@ -263,14 +160,7 @@ export default function Discover() {
         </div>
 
         {/* Main Content - Sidebar + Grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '280px 1fr',
-            gap: '2rem',
-            alignItems: 'start',
-          }}
-        >
+        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '2rem', alignItems: 'start' }}>
           {/* Filter Sidebar */}
           <FilterSidebar
             filters={filters}
@@ -280,28 +170,19 @@ export default function Discover() {
 
           {/* Gatherings Grid */}
           <div>
-            {/* Results count */}
             <div style={{ marginBottom: '1.5rem' }}>
               <p style={{ fontSize: '0.875rem', color: 'var(--comora-grey)' }}>
-                {filteredGatherings.length} gatherings found
+                {loading ? 'Loading…' : `${filteredGatherings.length} gatherings found`}
               </p>
             </div>
 
-            {/* Grid */}
-            {filteredGatherings.length > 0 ? (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-                  gap: '1.5rem',
-                }}
-              >
+            {!loading && filteredGatherings.length > 0 ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
                 {filteredGatherings.map((gathering) => (
                   <GatheringCard key={gathering.id} gathering={gathering} />
                 ))}
               </div>
-            ) : (
-              // Empty State
+            ) : !loading ? (
               <div
                 style={{
                   textAlign: 'center',
@@ -313,48 +194,40 @@ export default function Discover() {
               >
                 <div
                   style={{
-                    width: '80px',
-                    height: '80px',
-                    margin: '0 auto 1.5rem',
-                    borderRadius: '50%',
-                    background: 'var(--comora-cream)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    width: '80px', height: '80px', margin: '0 auto 1.5rem',
+                    borderRadius: '50%', background: 'var(--comora-cream)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
                   <Search size={32} style={{ color: 'var(--comora-grey)' }} />
                 </div>
-                <h3
-                  style={{
-                    fontSize: '1.25rem',
-                    fontWeight: '600',
-                    color: 'var(--comora-charcoal)',
-                    marginBottom: '0.5rem',
-                  }}
-                >
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--comora-charcoal)', marginBottom: '0.5rem' }}>
                   No gatherings found
                 </h3>
                 <p style={{ color: 'var(--comora-grey)', marginBottom: '1.5rem' }}>
-                  Try adjusting your filters or check back soon for new gatherings.
+                  {gatherings.length === 0
+                    ? 'No communities have been created yet. Be the first!'
+                    : 'Try adjusting your filters or check back soon for new gatherings.'}
                 </p>
-                <button
-                  onClick={handleClearFilters}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    background: 'var(--comora-orange)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '0.875rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Clear Filters
-                </button>
+                {gatherings.length > 0 && (
+                  <button
+                    onClick={handleClearFilters}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      background: 'var(--comora-orange)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Clear Filters
+                  </button>
+                )}
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

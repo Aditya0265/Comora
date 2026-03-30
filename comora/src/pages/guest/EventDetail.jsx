@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import {
   Calendar, Clock, MapPin, Users, Star, Share2, ShieldCheck,
-  ChevronRight, ArrowLeft, CheckCircle2, AlertCircle, Utensils,
+  ChevronRight, ArrowLeft, CheckCircle2, AlertCircle, Utensils, MessageSquare,
 } from 'lucide-react'
 
 import Button from '../../components/ui/Button'
@@ -29,7 +29,7 @@ function VibeDots({ value = 1, max = 5 }) {
           key={i}
           className={`w-2.5 h-2.5 rounded-full transition-colors ${
             i < value
-              ? 'bg-[var(--navy-800)]'
+              ? 'bg-[var(--comora-navy)]'
               : 'bg-[var(--border-strong)]'
           }`}
         />
@@ -45,7 +45,7 @@ function RatingBar({ label, value = 0, max = 5 }) {
       <span className="text-xs text-[var(--text-secondary)] w-28 shrink-0">{label}</span>
       <div className="flex-1 h-1.5 rounded-full bg-[var(--border)] overflow-hidden">
         <div
-          className="h-full rounded-full bg-[var(--amber-500)]"
+          className="h-full rounded-full bg-[var(--comora-orange)]"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -64,7 +64,7 @@ function StarRow({ value = 0 }) {
           key={s}
           size={13}
           className={s <= Math.round(value)
-            ? 'text-[var(--amber-500)] fill-[var(--amber-500)]'
+            ? 'text-[var(--comora-orange)] fill-[var(--comora-orange)]'
             : 'text-[var(--border-strong)]'}
         />
       ))}
@@ -84,6 +84,8 @@ export default function EventDetail() {
   const [payModalOpen, setPayModalOpen] = useState(false)
   const [cancelModalOpen, setCancelModalOpen] = useState(false)
   const [applyNote, setApplyNote] = useState('')
+  const [reviewModalOpen, setReviewModalOpen] = useState(false)
+  const [reviewForm, setReviewForm] = useState({ agenda_quality: 0, host_warmth: 0, food_accuracy: 0, group_vibe: 0, comment: '' })
 
   // ── fetch event ──────────────────────────────────────────────────────────
   const { data: event, isLoading, isError } = useQuery({
@@ -129,6 +131,47 @@ export default function EventDetail() {
       if (error && error.code !== 'PGRST116') throw error
       return data ?? null
     },
+  })
+
+  // ── fetch my review ─────────────────────────────────────────────────────
+  const { data: myReview } = useQuery({
+    queryKey: ['my-review', id, user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('event_id', id)
+        .eq('reviewer_id', user.id)
+        .single()
+      return data ?? null
+    },
+  })
+
+  // ── submit review mutation ───────────────────────────────────────────────
+  const reviewMutation = useMutation({
+    mutationFn: async (values) => {
+      const { error } = await supabase.from('reviews').upsert({
+        event_id: id,
+        reviewer_id: user.id,
+        host_id: event.host_id,
+        agenda_quality: values.agenda_quality,
+        host_warmth: values.host_warmth,
+        food_accuracy: values.food_accuracy,
+        group_vibe: values.group_vibe,
+        comment: values.comment,
+        is_visible: true,
+      }, { onConflict: 'event_id,reviewer_id' })
+      if (error) throw error
+    },
+    onSuccess: () => {
+      toast.success('Review submitted! Thank you.')
+      setReviewModalOpen(false)
+      queryClient.invalidateQueries({ queryKey: ['reviews', id] })
+      queryClient.invalidateQueries({ queryKey: ['my-review', id, user?.id] })
+      queryClient.invalidateQueries({ queryKey: ['event', id] })
+    },
+    onError: (err) => toast.error(err.message || 'Failed to submit review'),
   })
 
   // ── RSVP mutation ────────────────────────────────────────────────────────
@@ -209,7 +252,7 @@ export default function EventDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[var(--navy-800)] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[var(--comora-navy)] border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -232,6 +275,8 @@ export default function EventDetail() {
   const isWaitlisted = booking?.status === 'waitlisted'
   const isCancelled = booking?.status === 'cancelled'
   const hasPendingPayment = booking?.payment_status === 'pending' && event.price > 0
+  const hasAttended = booking?.status === 'attended'
+  const canReview = !!user && (isConfirmed || hasAttended) && event.status === 'completed'
   const isRequestMode = event.registration_mode === 'request'
   const isInviteOnly = event.registration_mode === 'invite_only'
 
@@ -294,14 +339,14 @@ export default function EventDetail() {
                 <span className="text-sm font-semibold text-[var(--text-primary)]">
                   {event.host?.name}
                   {event.host?.host_verified && (
-                    <span className="ml-1.5 inline-flex items-center gap-0.5 text-[var(--navy-800)] text-xs font-medium">
+                    <span className="ml-1.5 inline-flex items-center gap-0.5 text-[var(--comora-navy)] text-xs font-medium">
                       <ShieldCheck size={13} className="inline" /> Verified Host
                     </span>
                   )}
                 </span>
                 {(avgRating || reviewCount > 0) && (
                   <span className="flex items-center gap-1 text-xs text-[var(--text-secondary)]">
-                    <Star size={12} className="text-[var(--amber-500)] fill-[var(--amber-500)]" />
+                    <Star size={12} className="text-[var(--comora-orange)] fill-[var(--comora-orange)]" />
                     {avgRating ? Number(avgRating).toFixed(1) : '—'}
                     {reviewCount > 0 && ` (${reviewCount} review${reviewCount !== 1 ? 's' : ''})`}
                   </span>
@@ -444,12 +489,24 @@ export default function EventDetail() {
 
             {/* Reviews */}
             <section>
-              <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
-                Reviews
-                {reviewCount > 0 && (
-                  <span className="ml-2 text-sm font-normal text-[var(--text-muted)]">({reviewCount})</span>
+              <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+                  Reviews
+                  {reviewCount > 0 && (
+                    <span className="ml-2 text-sm font-normal text-[var(--text-muted)]">({reviewCount})</span>
+                  )}
+                </h2>
+                {canReview && !myReview && (
+                  <Button size="sm" variant="outline" onClick={() => setReviewModalOpen(true)}>
+                    <MessageSquare size={14} /> Write a Review
+                  </Button>
                 )}
-              </h2>
+                {canReview && myReview && (
+                  <Button size="sm" variant="ghost" onClick={() => { setReviewForm({ agenda_quality: myReview.agenda_quality, host_warmth: myReview.host_warmth, food_accuracy: myReview.food_accuracy, group_vibe: myReview.group_vibe, comment: myReview.comment || '' }); setReviewModalOpen(true) }}>
+                    <MessageSquare size={14} /> Edit Your Review
+                  </Button>
+                )}
+              </div>
 
               {avgRating && (
                 <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-5 mb-4 flex flex-col gap-3">
@@ -526,7 +583,7 @@ export default function EventDetail() {
                     )}
                     {(event.host?.avg_rating || event.host?.total_reviews) && (
                       <p className="mt-2 flex items-center gap-1 text-sm text-[var(--text-secondary)]">
-                        <Star size={13} className="text-[var(--amber-500)] fill-[var(--amber-500)]" />
+                        <Star size={13} className="text-[var(--comora-orange)] fill-[var(--comora-orange)]" />
                         {event.host?.avg_rating ? Number(event.host.avg_rating).toFixed(1) : '—'}
                         {event.host?.total_reviews > 0 && ` · ${event.host.total_reviews} reviews`}
                       </p>
@@ -588,7 +645,7 @@ export default function EventDetail() {
 
                 {/* Date/time card */}
                 <div className="bg-[var(--bg-subtle)] rounded-[var(--radius-md)] p-3 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--navy-800)] flex flex-col items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--comora-navy)] flex flex-col items-center justify-center shrink-0">
                     <span className="text-white text-[10px] font-semibold uppercase leading-none">
                       {event.date_time ? new Date(event.date_time).toLocaleString('en', { month: 'short' }) : '—'}
                     </span>
@@ -630,8 +687,8 @@ export default function EventDetail() {
                     </button>
                   </div>
                 ) : isWaitlisted ? (
-                  <div className="text-center py-3 rounded-[var(--radius-md)] bg-[var(--amber-500)]/10 border border-[var(--amber-500)]/30">
-                    <p className="text-sm font-semibold text-[var(--amber-500)]">You're on the waitlist</p>
+                  <div className="text-center py-3 rounded-[var(--radius-md)] bg-[var(--comora-orange)]/10 border border-[var(--comora-orange)]/30">
+                    <p className="text-sm font-semibold text-[var(--comora-orange)]">You're on the waitlist</p>
                     <p className="text-xs text-[var(--text-muted)] mt-0.5">We'll notify you if a spot opens</p>
                   </div>
                 ) : isFull ? (
@@ -727,7 +784,7 @@ export default function EventDetail() {
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-[var(--text-primary)]">Your message (optional)</label>
             <textarea
-              className="w-full px-3 py-2.5 rounded-[var(--radius-md)] text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--navy-800)] focus:ring-2 focus:ring-[var(--accent-soft)] resize-y min-h-[100px]"
+              className="w-full px-3 py-2.5 rounded-[var(--radius-md)] text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--comora-navy)] focus:ring-2 focus:ring-[var(--accent-soft)] resize-y min-h-[100px]"
               placeholder="I'm really interested in this topic because…"
               value={applyNote}
               onChange={(e) => setApplyNote(e.target.value)}
@@ -777,7 +834,7 @@ export default function EventDetail() {
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-[var(--text-primary)]">Card number</label>
               <input
-                className="w-full px-3 py-2.5 rounded-[var(--radius-md)] text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)] focus:outline-none focus:border-[var(--navy-800)]"
+                className="w-full px-3 py-2.5 rounded-[var(--radius-md)] text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)] focus:outline-none focus:border-[var(--comora-navy)]"
                 placeholder="4242 4242 4242 4242"
                 disabled
                 defaultValue="4242 4242 4242 4242"
@@ -820,6 +877,76 @@ export default function EventDetail() {
         </div>
       </Modal>
 
+      {/* ── Review Modal ──────────────────────────────────────────────────── */}
+      <Modal
+        isOpen={reviewModalOpen}
+        onClose={() => setReviewModalOpen(false)}
+        title={myReview ? 'Edit Your Review' : 'Leave a Review'}
+        size="md"
+      >
+        <div className="flex flex-col gap-5">
+          <p className="text-sm text-[var(--text-secondary)]">
+            Rate your experience at <strong>{event?.title}</strong>. Your feedback helps the host improve and helps other guests decide.
+          </p>
+
+          {[
+            { key: 'agenda_quality', label: 'Agenda Quality', desc: 'Was the discussion well-prepared and stimulating?' },
+            { key: 'host_warmth',    label: 'Host Warmth',    desc: 'Did the host make you feel welcome?' },
+            { key: 'food_accuracy',  label: 'Food & Setting', desc: 'Was the venue and refreshment as described?' },
+            { key: 'group_vibe',     label: 'Group Vibe',     desc: 'How was the energy and chemistry of the group?' },
+          ].map(({ key, label, desc }) => (
+            <div key={key}>
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-sm font-medium text-[var(--text-primary)]">{label}</p>
+                <span className="text-xs text-[var(--text-muted)]">{desc}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setReviewForm(prev => ({ ...prev, [key]: s }))}
+                    className="transition-transform hover:scale-110"
+                  >
+                    <Star
+                      size={24}
+                      className={s <= reviewForm[key]
+                        ? 'text-[var(--comora-orange)] fill-[var(--comora-orange)]'
+                        : 'text-[var(--border-strong)]'}
+                    />
+                  </button>
+                ))}
+                <span className="ml-2 text-sm font-semibold text-[var(--text-primary)]">
+                  {reviewForm[key] ? `${reviewForm[key]}/5` : '—'}
+                </span>
+              </div>
+            </div>
+          ))}
+
+          <div>
+            <p className="text-sm font-medium text-[var(--text-primary)] mb-1.5">Comment <span className="text-[var(--text-muted)] font-normal">(optional)</span></p>
+            <textarea
+              className="w-full px-3 py-2.5 rounded-[var(--radius-md)] text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--comora-navy)] focus:ring-2 focus:ring-[var(--accent-soft)] resize-y min-h-[80px]"
+              placeholder="What made this gathering memorable? Any feedback for the host?"
+              value={reviewForm.comment}
+              onChange={(e) => setReviewForm(prev => ({ ...prev, comment: e.target.value }))}
+            />
+          </div>
+
+          <div className="flex gap-3 justify-end pt-1">
+            <Button variant="secondary" onClick={() => setReviewModalOpen(false)}>Cancel</Button>
+            <Button
+              variant="primary"
+              loading={reviewMutation.isPending}
+              disabled={!reviewForm.agenda_quality || !reviewForm.host_warmth || !reviewForm.food_accuracy || !reviewForm.group_vibe}
+              onClick={() => reviewMutation.mutate(reviewForm)}
+            >
+              Submit Review
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
       {/* ── Cancel RSVP Modal ──────────────────────────────────────────────── */}
       <Modal
         isOpen={cancelModalOpen}
@@ -832,8 +959,8 @@ export default function EventDetail() {
             Are you sure you want to cancel your spot at <strong>{event.title}</strong>? This action cannot be undone.
           </p>
           {event.cancellation_policy && event.cancellation_policy !== 'none' && (
-            <div className="bg-[var(--amber-500)]/10 border border-[var(--amber-500)]/30 rounded-[var(--radius-md)] p-3">
-              <p className="text-xs text-[var(--amber-500)] font-medium">
+            <div className="bg-[var(--comora-orange)]/10 border border-[var(--comora-orange)]/30 rounded-[var(--radius-md)] p-3">
+              <p className="text-xs text-[var(--comora-orange)] font-medium">
                 Cancellation policy: {event.cancellation_policy}
               </p>
             </div>

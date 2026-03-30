@@ -214,7 +214,7 @@ export default function Register() {
             Already have an account?{' '}
             <Link
               to="/login"
-              style={{ color: 'var(--amber-500)', fontWeight: 600, textDecoration: 'none' }}
+              style={{ color: 'var(--comora-orange)', fontWeight: 600, textDecoration: 'none' }}
             >
               Sign in
             </Link>
@@ -227,7 +227,7 @@ export default function Register() {
         style={{
           display: 'none',
           flex: '0 0 42%',
-          background: 'var(--navy-800)',
+          background: 'var(--comora-navy)',
           padding: '3rem 2.5rem',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -275,7 +275,7 @@ export default function Register() {
               marginBottom: '2rem',
             }}
           >
-            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--amber-500)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--comora-orange)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
               Why Comora?
             </span>
           </div>
@@ -317,7 +317,7 @@ export default function Register() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'var(--amber-500)',
+                    color: 'var(--comora-orange)',
                   }}
                 >
                   {b.icon}

@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Users, Sparkles, Calendar, Star, ChevronRight } from 'lucide-react'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
+import { useAuth } from '../contexts/AuthContext'
 
 const howItWorks = [
   {
@@ -50,6 +51,13 @@ const categories = [
 
 export default function Landing() {
   const navigate = useNavigate()
+  const { user, profile } = useAuth()
+
+  function handleBecomeHost() {
+    if (!user) return navigate('/register')
+    if (profile?.role === 'host' || profile?.role === 'admin') return navigate('/host/studio/new')
+    return navigate('/profile?become-host=1')
+  }
 
   return (
     <div className="flex flex-col">
@@ -65,7 +73,7 @@ export default function Landing() {
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[var(--text-primary)] leading-[1.1] tracking-tight max-w-3xl">
             Meet people who{' '}
-            <span className="font-display italic" style={{ color: 'var(--navy-800)' }}>think</span>{' '}
+            <span className="font-display italic" style={{ color: 'var(--comora-navy)' }}>think</span>{' '}
             like you
           </h1>
 
@@ -98,7 +106,7 @@ export default function Landing() {
           <Badge variant="primary" className="self-center">The Comora Difference</Badge>
           <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)]">
             Other platforms ask "What do you want to eat?"<br />
-            <span className="text-[var(--navy-800)]">We ask "What do you want to talk about?"</span>
+            <span className="text-[var(--comora-navy)]">We ask "What do you want to talk about?"</span>
           </h2>
 
           <div className="grid sm:grid-cols-2 gap-4 text-left mt-4">
@@ -107,10 +115,10 @@ export default function Landing() {
               <p className="text-[var(--text-secondary)] italic">"Join an Italian dinner at 7 PM on Saturday."</p>
               <p className="text-sm text-[var(--text-muted)] mt-2">You show up, eat, struggle for conversation, go home.</p>
             </div>
-            <div className="p-5 rounded-[var(--radius-xl)] border-2 border-[var(--navy-800)] bg-[var(--accent-soft)]">
-              <p className="text-xs font-semibold text-[var(--navy-800)] uppercase tracking-wider mb-3">Comora Model</p>
+            <div className="p-5 rounded-[var(--radius-xl)] border-2 border-[var(--comora-navy)] bg-[var(--accent-soft)]">
+              <p className="text-xs font-semibold text-[var(--comora-navy)] uppercase tracking-wider mb-3">Comora Model</p>
               <p className="text-[var(--text-primary)] italic font-medium">"Join a dinner-discussion on the evolution of space opera — 6 people who read the same books as you."</p>
-              <p className="text-sm text-[var(--navy-800)] mt-2 font-medium">You already have something to say before you arrive.</p>
+              <p className="text-sm text-[var(--comora-navy)] mt-2 font-medium">You already have something to say before you arrive.</p>
             </div>
           </div>
         </div>
@@ -162,7 +170,7 @@ export default function Landing() {
                 className="flex flex-col gap-2 p-5 rounded-[var(--radius-xl)] bg-[var(--bg-card)] border border-[var(--border)] card-hover text-center group"
               >
                 <span className="text-3xl">{cat.icon}</span>
-                <span className="font-semibold text-[var(--text-primary)] text-sm group-hover:text-[var(--navy-800)] transition-colors">
+                <span className="font-semibold text-[var(--text-primary)] text-sm group-hover:text-[var(--comora-navy)] transition-colors">
                   {cat.label}
                 </span>
                 <span className="text-xs text-[var(--text-muted)]">{cat.count}</span>
@@ -179,7 +187,7 @@ export default function Landing() {
             <Badge variant="default">For Hosts</Badge>
             <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)]">
               You don't need to be a chef.<br />
-              <span className="text-[var(--navy-800)]">You need to be curious.</span>
+              <span className="text-[var(--comora-navy)]">You need to be curious.</span>
             </h2>
             <p className="text-[var(--text-secondary)] leading-relaxed">
               Traditional supper clubs require a skilled cook. Comora redefines the host as a
@@ -200,7 +208,7 @@ export default function Landing() {
               ))}
             </ul>
             <div className="flex gap-3 pt-2">
-              <Button onClick={() => navigate('/register')}>
+              <Button onClick={handleBecomeHost}>
                 Become a Host
                 <ChevronRight size={16} />
               </Button>
@@ -210,7 +218,7 @@ export default function Landing() {
           <div className="grid gap-4">
             <div className="p-6 rounded-[var(--radius-xl)] bg-[var(--bg-card)] border border-[var(--border)] flex flex-col gap-3">
               <div className="flex items-center gap-3">
-                <Users size={20} className="text-[var(--navy-800)]" />
+                <Users size={20} className="text-[var(--comora-navy)]" />
                 <span className="font-semibold text-[var(--text-primary)]">Host Studio</span>
               </div>
               <p className="text-sm text-[var(--text-secondary)]">
@@ -220,7 +228,7 @@ export default function Landing() {
             </div>
             <div className="p-6 rounded-[var(--radius-xl)] bg-[var(--bg-card)] border border-[var(--border)] flex flex-col gap-3">
               <div className="flex items-center gap-3">
-                <Calendar size={20} className="text-[var(--amber-500)]" />
+                <Calendar size={20} className="text-[var(--comora-orange)]" />
                 <span className="font-semibold text-[var(--text-primary)]">Guest Management</span>
               </div>
               <p className="text-sm text-[var(--text-secondary)]">

@@ -91,7 +91,7 @@ function HostBanner() {
     >
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-          <Sparkles size={22} className="text-[var(--amber-500)]" />
+          <Sparkles size={22} className="text-[var(--comora-orange)]" />
         </div>
         <div>
           <p className="font-semibold text-white text-base">Want to host your own gathering?</p>
@@ -251,7 +251,7 @@ export default function Browse() {
             value={filters.search}
             onChange={(e) => updateFilter('search', e.target.value)}
             placeholder="Title, topic, description…"
-            className="w-full pl-9 pr-3 py-2 text-sm rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--navy-800)] transition-colors"
+            className="w-full pl-9 pr-3 py-2 text-sm rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--comora-navy)] transition-colors"
           />
           {filters.search && (
             <button
@@ -276,7 +276,7 @@ export default function Browse() {
                 type="checkbox"
                 checked={filters.topics.includes(tag)}
                 onChange={() => toggleArrayFilter('topics', tag)}
-                className="w-4 h-4 rounded accent-[var(--navy-800)] cursor-pointer"
+                className="w-4 h-4 rounded accent-[var(--comora-navy)] cursor-pointer"
               />
               <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">
                 {tag}
@@ -287,7 +287,7 @@ export default function Browse() {
         {TOPIC_TAGS.length > 8 && (
           <button
             onClick={() => setShowAllTopics((v) => !v)}
-            className="mt-2 text-xs text-[var(--navy-800)] font-medium flex items-center gap-1 hover:underline"
+            className="mt-2 text-xs text-[var(--comora-navy)] font-medium flex items-center gap-1 hover:underline"
           >
             {showAllTopics ? (
               <><ChevronUp size={12} /> Show less</>
@@ -310,7 +310,7 @@ export default function Browse() {
                 type="checkbox"
                 checked={filters.formats.includes(at.id)}
                 onChange={() => toggleArrayFilter('formats', at.id)}
-                className="w-4 h-4 rounded accent-[var(--navy-800)] cursor-pointer"
+                className="w-4 h-4 rounded accent-[var(--comora-navy)] cursor-pointer"
               />
               <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">
                 {at.icon} {at.label}
@@ -328,7 +328,7 @@ export default function Browse() {
         <select
           value={filters.city}
           onChange={(e) => updateFilter('city', e.target.value)}
-          className="w-full px-3 py-2 text-sm rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--navy-800)] cursor-pointer"
+          className="w-full px-3 py-2 text-sm rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--comora-navy)] cursor-pointer"
         >
           <option value="">All Cities</option>
           {CITIES.map((c) => (
@@ -393,7 +393,7 @@ export default function Browse() {
         <select
           value={filters.groupSize}
           onChange={(e) => updateFilter('groupSize', e.target.value)}
-          className="w-full px-3 py-2 text-sm rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--navy-800)] cursor-pointer"
+          className="w-full px-3 py-2 text-sm rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--comora-navy)] cursor-pointer"
         >
           {GROUP_SIZE_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>
@@ -415,7 +415,7 @@ export default function Browse() {
                 value={o.value}
                 checked={filters.price === o.value}
                 onChange={() => updateFilter('price', o.value)}
-                className="w-4 h-4 accent-[var(--navy-800)] cursor-pointer"
+                className="w-4 h-4 accent-[var(--comora-navy)] cursor-pointer"
               />
               <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">
                 {o.label}
@@ -515,7 +515,7 @@ export default function Browse() {
             <SlidersHorizontal size={15} />
             Filters
             {hasFilters && (
-              <span className="w-5 h-5 rounded-full bg-[var(--navy-800)] text-white text-[10px] font-bold flex items-center justify-center">
+              <span className="w-5 h-5 rounded-full bg-[var(--comora-navy)] text-white text-[10px] font-bold flex items-center justify-center">
                 {activeFilters.length}
               </span>
             )}
@@ -544,7 +544,7 @@ export default function Browse() {
                 {hasFilters && (
                   <button
                     onClick={clearAll}
-                    className="text-xs text-[var(--navy-800)] hover:underline font-medium"
+                    className="text-xs text-[var(--comora-navy)] hover:underline font-medium"
                   >
                     Clear all
                   </button>
@@ -564,7 +564,7 @@ export default function Browse() {
                   <button
                     key={pill.key}
                     onClick={pill.clear}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[var(--accent-soft)] text-[var(--navy-800)] border border-[var(--navy-800)]/20 hover:bg-[var(--navy-800)] hover:text-white transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[var(--accent-soft)] text-[var(--comora-navy)] border border-[var(--comora-navy)]/20 hover:bg-[var(--comora-navy)] hover:text-white transition-colors"
                   >
                     {pill.label}
                     <X size={11} />
@@ -588,7 +588,7 @@ export default function Browse() {
                 <select
                   value={sort}
                   onChange={(e) => setSort(e.target.value)}
-                  className="text-sm px-3 py-1.5 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--navy-800)] cursor-pointer"
+                  className="text-sm px-3 py-1.5 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--comora-navy)] cursor-pointer"
                 >
                   {SORT_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>{o.label}</option>

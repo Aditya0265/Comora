@@ -125,21 +125,21 @@ function ProgressBar({ current }) {
             <div key={step.number} className="flex items-center gap-0 flex-1">
               <div className="flex flex-col items-center gap-1 flex-shrink-0">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
-                  done   ? 'bg-[var(--navy-800)] text-white' :
-                  active ? 'bg-[var(--navy-800)] text-white ring-4 ring-[var(--accent-soft)]' :
+                  done   ? 'bg-[var(--comora-navy)] text-white' :
+                  active ? 'bg-[var(--comora-navy)] text-white ring-4 ring-[var(--accent-soft)]' :
                             'bg-[var(--bg-subtle)] text-[var(--text-muted)] border border-[var(--border)]'
                 }`}>
                   {done ? <Check size={14} /> : step.number}
                 </div>
                 <span className={`text-[10px] font-medium hidden sm:block ${
-                  active ? 'text-[var(--navy-800)]' : 'text-[var(--text-muted)]'
+                  active ? 'text-[var(--comora-navy)]' : 'text-[var(--text-muted)]'
                 }`}>
                   {step.label}
                 </span>
               </div>
               {idx < STEPS.length - 1 && (
                 <div className={`flex-1 h-0.5 mx-1 transition-colors ${
-                  current > step.number ? 'bg-[var(--navy-800)]' : 'bg-[var(--border)]'
+                  current > step.number ? 'bg-[var(--comora-navy)]' : 'bg-[var(--border)]'
                 }`} />
               )}
             </div>
@@ -167,12 +167,12 @@ function Step1Template({ form, onChange }) {
               onClick={() => onChange('agenda_type', type.id)}
               className={`relative flex flex-col items-center gap-2 p-4 rounded-[var(--radius-xl)] border-2 text-center transition-all ${
                 selected
-                  ? 'border-[var(--navy-800)] bg-[var(--accent-soft)] shadow-[var(--shadow-md)]'
+                  ? 'border-[var(--comora-navy)] bg-[var(--accent-soft)] shadow-[var(--shadow-md)]'
                   : 'border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-subtle)]'
               }`}
             >
               {selected && (
-                <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[var(--navy-800)] text-white flex items-center justify-center">
+                <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[var(--comora-navy)] text-white flex items-center justify-center">
                   <Check size={11} />
                 </span>
               )}
@@ -210,7 +210,7 @@ function Step2Identity({ form, onChange, errors }) {
           error={errors.title}
           placeholder="e.g. Late Night Philosophy Over Coffee"
         />
-        <p className={`text-xs mt-1 text-right ${titleLen > 70 ? 'text-[var(--amber-500)]' : 'text-[var(--text-muted)]'}`}>
+        <p className={`text-xs mt-1 text-right ${titleLen > 70 ? 'text-[var(--comora-orange)]' : 'text-[var(--text-muted)]'}`}>
           {titleLen}/80
         </p>
       </div>
@@ -226,10 +226,10 @@ function Step2Identity({ form, onChange, errors }) {
           style={{ minHeight: '140px' }}
         />
         <div className="flex justify-between mt-1">
-          <span className={`text-xs ${descLen < 100 ? 'text-[var(--amber-500)]' : 'text-[var(--text-muted)]'}`}>
+          <span className={`text-xs ${descLen < 100 ? 'text-[var(--comora-orange)]' : 'text-[var(--text-muted)]'}`}>
             {descLen < 100 ? `${100 - descLen} more characters needed` : ''}
           </span>
-          <span className={`text-xs ${descLen > 900 ? 'text-[var(--amber-500)]' : 'text-[var(--text-muted)]'}`}>
+          <span className={`text-xs ${descLen > 900 ? 'text-[var(--comora-orange)]' : 'text-[var(--text-muted)]'}`}>
             {descLen}/1000
           </span>
         </div>
@@ -256,7 +256,7 @@ function Step2Identity({ form, onChange, errors }) {
                 }}
                 className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
                   selected
-                    ? 'bg-[var(--navy-800)] text-white border-[var(--navy-800)]'
+                    ? 'bg-[var(--comora-navy)] text-white border-[var(--comora-navy)]'
                     : maxed
                     ? 'bg-[var(--bg-subtle)] text-[var(--text-muted)] border-[var(--border)] opacity-50 cursor-not-allowed'
                     : 'bg-[var(--bg-card)] text-[var(--text-secondary)] border-[var(--border)] hover:border-[var(--border-strong)]'
@@ -280,7 +280,7 @@ function Step3Vibe({ form, onChange }) {
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-[var(--text-primary)]">{label}</span>
-          <span className="text-xs font-semibold text-[var(--navy-800)] bg-[var(--accent-soft)] px-2.5 py-0.5 rounded-full">
+          <span className="text-xs font-semibold text-[var(--comora-navy)] bg-[var(--accent-soft)] px-2.5 py-0.5 rounded-full">
             {vibeLabel}
           </span>
         </div>
@@ -293,13 +293,13 @@ function Step3Vibe({ form, onChange }) {
             step={1}
             value={val}
             onChange={(e) => onChange(`vibe_${axis}`, Number(e.target.value))}
-            className="flex-1 accent-[var(--navy-800)] h-2 cursor-pointer"
+            className="flex-1 accent-[var(--comora-navy)] h-2 cursor-pointer"
           />
           <span className="text-xs text-[var(--text-muted)] w-24 shrink-0">{rightLabel}</span>
         </div>
         <div className="flex justify-between px-[calc(1.5rem+0.25rem)]">
           {[1,2,3,4,5].map((n) => (
-            <span key={n} className={`text-[10px] ${n === val ? 'text-[var(--navy-800)] font-bold' : 'text-[var(--text-muted)]'}`}>
+            <span key={n} className={`text-[10px] ${n === val ? 'text-[var(--comora-navy)] font-bold' : 'text-[var(--text-muted)]'}`}>
               {n}
             </span>
           ))}
@@ -337,9 +337,9 @@ function Step3Vibe({ form, onChange }) {
                 onChange('min_guests', val)
                 if (val > form.max_guests) onChange('max_guests', val)
               }}
-              className="accent-[var(--navy-800)] h-2 cursor-pointer"
+              className="accent-[var(--comora-navy)] h-2 cursor-pointer"
             />
-            <p className="text-center text-sm font-semibold text-[var(--navy-800)]">{form.min_guests} people</p>
+            <p className="text-center text-sm font-semibold text-[var(--comora-navy)]">{form.min_guests} people</p>
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-[var(--text-primary)]">Max Guests</label>
@@ -354,9 +354,9 @@ function Step3Vibe({ form, onChange }) {
                 onChange('max_guests', val)
                 if (val < form.min_guests) onChange('min_guests', val)
               }}
-              className="accent-[var(--navy-800)] h-2 cursor-pointer"
+              className="accent-[var(--comora-navy)] h-2 cursor-pointer"
             />
-            <p className="text-center text-sm font-semibold text-[var(--navy-800)]">{form.max_guests} people</p>
+            <p className="text-center text-sm font-semibold text-[var(--comora-navy)]">{form.max_guests} people</p>
           </div>
         </div>
       </div>
@@ -480,19 +480,19 @@ function Step5Guests({ form, onChange }) {
               onClick={() => onChange('registration_mode', mode.value)}
               className={`flex items-start gap-4 p-4 rounded-[var(--radius-xl)] border-2 text-left transition-all ${
                 selected
-                  ? 'border-[var(--navy-800)] bg-[var(--accent-soft)]'
+                  ? 'border-[var(--comora-navy)] bg-[var(--accent-soft)]'
                   : 'border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--border-strong)]'
               }`}
             >
               <span className="text-2xl shrink-0">{mode.icon}</span>
               <div>
-                <p className={`text-sm font-semibold ${selected ? 'text-[var(--navy-800)]' : 'text-[var(--text-primary)]'}`}>
+                <p className={`text-sm font-semibold ${selected ? 'text-[var(--comora-navy)]' : 'text-[var(--text-primary)]'}`}>
                   {mode.label}
                 </p>
                 <p className="text-xs text-[var(--text-secondary)] mt-0.5">{mode.description}</p>
               </div>
               {selected && (
-                <div className="ml-auto shrink-0 w-5 h-5 rounded-full bg-[var(--navy-800)] text-white flex items-center justify-center">
+                <div className="ml-auto shrink-0 w-5 h-5 rounded-full bg-[var(--comora-navy)] text-white flex items-center justify-center">
                   <Check size={11} />
                 </div>
               )}
@@ -607,8 +607,8 @@ function Step6Preview({ form, onSaveDraft, onPublish, isSaving, isPublishing }) 
         </div>
       </div>
 
-      <div className="bg-[var(--amber-500)]/10 border border-[var(--amber-500)]/30 rounded-[var(--radius-md)] p-4">
-        <p className="text-xs text-[var(--amber-500)] font-medium">
+      <div className="bg-[var(--comora-orange)]/10 border border-[var(--comora-orange)]/30 rounded-[var(--radius-md)] p-4">
+        <p className="text-xs text-[var(--comora-orange)] font-medium">
           Submitting for review will notify the Comora team. Events are typically reviewed within 24 hours.
         </p>
       </div>

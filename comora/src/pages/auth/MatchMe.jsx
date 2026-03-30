@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, Check, PartyPopper } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../contexts/AuthContext'
-import { supabase } from '../../lib/supabase'
 import Button from '../../components/ui/Button'
 import { Select } from '../../components/ui/Input'
 import { INTEREST_CATEGORIES, SOCIAL_COMFORT, DIETARY_OPTIONS, CITIES } from '../../lib/utils'
@@ -51,7 +50,7 @@ function ProgressBar({ step }) {
           style={{
             height: '100%',
             width: `${pct}%`,
-            background: 'var(--amber-500)',
+            background: 'var(--comora-orange)',
             borderRadius: '999px',
             transition: 'width 0.4s cubic-bezier(0.4,0,0.2,1)',
           }}
@@ -105,7 +104,7 @@ function StepInterests({ value, onChange }) {
               gap: '0.375rem',
               padding: '1rem',
               borderRadius: 'var(--radius-md)',
-              border: selected ? '2px solid var(--amber-500)' : '2px solid var(--border)',
+              border: selected ? '2px solid var(--comora-orange)' : '2px solid var(--border)',
               background: selected ? 'var(--accent-soft)' : 'var(--bg-card)',
               cursor: 'pointer',
               textAlign: 'left',
@@ -119,7 +118,7 @@ function StepInterests({ value, onChange }) {
               style={{
                 fontSize: '0.84375rem',
                 fontWeight: selected ? 600 : 500,
-                color: selected ? 'var(--amber-500)' : 'var(--text-primary)',
+                color: selected ? 'var(--comora-orange)' : 'var(--text-primary)',
                 lineHeight: 1.3,
               }}
             >
@@ -149,7 +148,7 @@ function StepSocialComfort({ value, onChange }) {
               gap: '1rem',
               padding: '1rem 1.25rem',
               borderRadius: 'var(--radius-md)',
-              border: selected ? '2px solid var(--amber-500)' : '2px solid var(--border)',
+              border: selected ? '2px solid var(--comora-orange)' : '2px solid var(--border)',
               background: selected ? 'var(--accent-soft)' : 'var(--bg-card)',
               cursor: 'pointer',
               textAlign: 'left',
@@ -161,8 +160,8 @@ function StepSocialComfort({ value, onChange }) {
                 width: '2rem',
                 height: '2rem',
                 borderRadius: '50%',
-                background: selected ? 'var(--amber-500)' : 'var(--bg-elevated)',
-                border: selected ? '2px solid var(--amber-500)' : '2px solid var(--border)',
+                background: selected ? 'var(--comora-orange)' : 'var(--bg-elevated)',
+                border: selected ? '2px solid var(--comora-orange)' : '2px solid var(--border)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -177,7 +176,7 @@ function StepSocialComfort({ value, onChange }) {
                 style={{
                   fontWeight: 600,
                   fontSize: '0.9375rem',
-                  color: selected ? 'var(--amber-500)' : 'var(--text-primary)',
+                  color: selected ? 'var(--comora-orange)' : 'var(--text-primary)',
                   marginBottom: '0.125rem',
                 }}
               >
@@ -216,7 +215,7 @@ function StepGroupSize({ value, onChange }) {
               justifyContent: 'center',
               padding: '1.5rem 1rem',
               borderRadius: 'var(--radius-md)',
-              border: selected ? '2px solid var(--amber-500)' : '2px solid var(--border)',
+              border: selected ? '2px solid var(--comora-orange)' : '2px solid var(--border)',
               background: selected ? 'var(--accent-soft)' : 'var(--bg-card)',
               cursor: 'pointer',
               textAlign: 'center',
@@ -229,7 +228,7 @@ function StepGroupSize({ value, onChange }) {
               style={{
                 fontSize: '1.75rem',
                 fontWeight: 800,
-                color: selected ? 'var(--amber-500)' : 'var(--text-primary)',
+                color: selected ? 'var(--comora-orange)' : 'var(--text-primary)',
                 lineHeight: 1,
                 marginBottom: '0.375rem',
               }}
@@ -263,9 +262,9 @@ function StepDietary({ value, onChange }) {
             style={{
               padding: '0.5rem 1.125rem',
               borderRadius: '999px',
-              border: selected ? '2px solid var(--amber-500)' : '2px solid var(--border)',
+              border: selected ? '2px solid var(--comora-orange)' : '2px solid var(--border)',
               background: selected ? 'var(--accent-soft)' : 'var(--bg-card)',
-              color: selected ? 'var(--amber-500)' : 'var(--text-secondary)',
+              color: selected ? 'var(--comora-orange)' : 'var(--text-secondary)',
               fontWeight: selected ? 600 : 500,
               fontSize: '0.875rem',
               cursor: 'pointer',
@@ -305,7 +304,7 @@ function StepBudget({ value, onChange }) {
               justifyContent: 'center',
               padding: '1.375rem 1rem',
               borderRadius: 'var(--radius-md)',
-              border: selected ? '2px solid var(--amber-500)' : '2px solid var(--border)',
+              border: selected ? '2px solid var(--comora-orange)' : '2px solid var(--border)',
               background: selected ? 'var(--accent-soft)' : 'var(--bg-card)',
               cursor: 'pointer',
               textAlign: 'center',
@@ -320,7 +319,7 @@ function StepBudget({ value, onChange }) {
               style={{
                 fontWeight: 700,
                 fontSize: '1rem',
-                color: selected ? 'var(--amber-500)' : 'var(--text-primary)',
+                color: selected ? 'var(--comora-orange)' : 'var(--text-primary)',
               }}
             >
               {opt.label}
@@ -436,7 +435,7 @@ function SummaryRow({ label, value }) {
 
 /* ── Main component ──────────────────────────────────────────────── */
 export default function MatchMe() {
-  const { user } = useAuth()
+  const { user, updateProfile } = useAuth()
   const navigate = useNavigate()
 
   const [step, setStep] = useState(1)
@@ -490,19 +489,18 @@ export default function MatchMe() {
     }
     setSubmitting(true)
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          interests,
-          social_comfort: socialComfort,
-          preferred_group_min: groupSize?.min ?? null,
-          preferred_group_max: groupSize?.max ?? null,
-          dietary_prefs: dietary,
-          budget_range: budget,
-          city,
-          match_me_completed: true,
-        })
-        .eq('id', user.id)
+      // Use AuthContext's updateProfile so the in-memory profile state is also
+      // refreshed — prevents needsMatchMe from staying true and causing redirect loops.
+      const { error } = await updateProfile({
+        interests,
+        social_comfort: socialComfort,
+        preferred_group_min: groupSize?.min ?? null,
+        preferred_group_max: groupSize?.max ?? null,
+        dietary_prefs: dietary,
+        budget_range: budget,
+        city,
+        match_me_completed: true,
+      })
 
       if (error) throw error
 
@@ -540,7 +538,7 @@ export default function MatchMe() {
             height: '5rem',
             borderRadius: '50%',
             background: 'var(--accent-soft)',
-            border: '2px solid var(--amber-500)',
+            border: '2px solid var(--comora-orange)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -548,7 +546,7 @@ export default function MatchMe() {
             animation: 'celebPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both',
           }}
         >
-          <PartyPopper size={32} color="var(--amber-500)" />
+          <PartyPopper size={32} color="var(--comora-orange)" />
         </div>
         <h2
           style={{
@@ -665,7 +663,7 @@ export default function MatchMe() {
 
           {/* Validation hint */}
           {step === 1 && interests.length < 2 && interests.length > 0 && (
-            <p style={{ marginTop: '1rem', fontSize: '0.84375rem', color: 'var(--amber-500)' }}>
+            <p style={{ marginTop: '1rem', fontSize: '0.84375rem', color: 'var(--comora-orange)' }}>
               Pick at least one more interest.
             </p>
           )}

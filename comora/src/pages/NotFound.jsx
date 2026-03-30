@@ -23,7 +23,7 @@ export default function NotFound() {
           style={{
             fontSize: 'clamp(5rem, 20vw, 8rem)',
             fontWeight: 900,
-            color: 'var(--navy-800)',
+            color: 'var(--comora-navy)',
             lineHeight: 1,
             letterSpacing: '-0.04em',
             marginBottom: '0.25rem',
@@ -39,7 +39,7 @@ export default function NotFound() {
             width: '3rem',
             height: '4px',
             borderRadius: '2px',
-            background: 'var(--amber-500)',
+            background: 'var(--comora-orange)',
             margin: '0 auto 1.5rem',
           }}
         />

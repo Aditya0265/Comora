@@ -6,12 +6,11 @@ import {
   Wallet, BarChart2, ScrollText, Menu, X, ChevronRight,
   CheckCircle, XCircle, AlertTriangle, Clock, TrendingUp,
   Search, Filter, Eye, UserCog, Ban, ShieldOff, Star,
-  ArrowLeft, LogOut, Sun, Moon,
+  ArrowLeft, LogOut, MessageCircle,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
-import { useTheme } from '../../contexts/ThemeContext'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
 import Avatar from '../../components/ui/Avatar'
@@ -38,6 +37,7 @@ const NAV_ITEMS = [
   { id: 'events',            label: 'Events',             icon: CalendarDays    },
   { id: 'host-verification', label: 'Host Verification',  icon: ShieldCheck     },
   { id: 'disputes',          label: 'Disputes',           icon: Swords          },
+  { id: 'support',           label: 'Support',            icon: MessageCircle   },
   { id: 'escrow',            label: 'Escrow',             icon: Wallet          },
   { id: 'analytics',         label: 'Analytics',          icon: BarChart2       },
   { id: 'audit-log',         label: 'Audit Log',          icon: ScrollText      },
@@ -66,7 +66,7 @@ function StatCard({ label, value, icon: Icon, accent = false, loading = false })
             borderRadius: 'var(--radius-md)',
             background: accent ? 'var(--accent-soft)' : 'var(--bg-subtle)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: accent ? 'var(--navy-800)' : 'var(--text-muted)',
+            color: accent ? 'var(--comora-navy)' : 'var(--text-muted)',
           }}>
             <Icon size={15} />
           </span>
@@ -208,7 +208,7 @@ function DashboardSection() {
                     <Avatar src={log.admin?.avatar_url} name={log.admin?.name} size="sm" />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: '0.875rem', color: 'var(--text-primary)', fontWeight: 500 }}>
-                        <span style={{ color: 'var(--navy-800)' }}>{log.admin?.name ?? 'Admin'}</span>
+                        <span style={{ color: 'var(--comora-navy)' }}>{log.admin?.name ?? 'Admin'}</span>
                         {' — '}{log.action_type}
                         {log.target_type && <span style={{ color: 'var(--text-muted)' }}> on {log.target_type}</span>}
                       </p>
@@ -457,11 +457,11 @@ function EventsSection() {
               padding: '0.5rem 1rem',
               fontSize: '0.875rem',
               fontWeight: tab === t.id ? 600 : 400,
-              color: tab === t.id ? 'var(--navy-800)' : 'var(--text-muted)',
-              borderBottom: tab === t.id ? '2px solid var(--navy-800)' : '2px solid transparent',
+              color: tab === t.id ? 'var(--comora-navy)' : 'var(--text-muted)',
+              borderBottom: tab === t.id ? '2px solid var(--comora-navy)' : '2px solid transparent',
               background: 'none',
               border: 'none',
-              borderBottom: tab === t.id ? '2px solid var(--navy-800)' : '2px solid transparent',
+              borderBottom: tab === t.id ? '2px solid var(--comora-navy)' : '2px solid transparent',
               cursor: 'pointer',
               transition: 'all 0.15s',
             }}
@@ -705,7 +705,7 @@ function DisputesSection() {
               borderRadius: 'var(--radius-md)',
               fontSize: '0.8rem',
               fontWeight: statusFilter === s ? 600 : 400,
-              background: statusFilter === s ? 'var(--navy-800)' : 'var(--bg-subtle)',
+              background: statusFilter === s ? 'var(--comora-navy)' : 'var(--bg-subtle)',
               color: statusFilter === s ? '#fff' : 'var(--text-secondary)',
               border: '1px solid var(--border)',
               cursor: 'pointer',
@@ -838,7 +838,7 @@ function EscrowSection() {
               borderRadius: 'var(--radius-md)',
               fontSize: '0.8rem',
               fontWeight: statusFilter === s ? 600 : 400,
-              background: statusFilter === s ? 'var(--navy-800)' : 'var(--bg-subtle)',
+              background: statusFilter === s ? 'var(--comora-navy)' : 'var(--bg-subtle)',
               color: statusFilter === s ? '#fff' : 'var(--text-secondary)',
               border: '1px solid var(--border)',
               cursor: 'pointer',
@@ -1027,7 +1027,7 @@ function AnalyticsSection() {
                 <Td align="right">
                   {h.avg_host_rating
                     ? <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.25rem' }}>
-                        <Star size={12} style={{ color: 'var(--amber-500)', fill: 'var(--amber-500)' }} />
+                        <Star size={12} style={{ color: 'var(--comora-orange)', fill: 'var(--comora-orange)' }} />
                         {Number(h.avg_host_rating).toFixed(1)}
                       </span>
                     : <span style={{ color: 'var(--text-muted)' }}>—</span>
@@ -1116,11 +1116,155 @@ function AuditLogSection() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   SECTION: SUPPORT
+═══════════════════════════════════════════════════════════════════════════ */
+function SupportSection() {
+  const { profile: adminProfile } = useAuth()
+  const qc = useQueryClient()
+  const [statusFilter, setStatusFilter] = useState('open')
+  const [replyModal, setReplyModal] = useState(null)
+  const [replyText, setReplyText] = useState('')
+
+  const { data: tickets = [], isLoading } = useQuery({
+    queryKey: ['admin-support', statusFilter],
+    queryFn: async () => {
+      let q = supabase
+        .from('support_tickets')
+        .select('*, user:profiles!user_id(name, avatar_url, email)')
+        .order('created_at', { ascending: false })
+      if (statusFilter !== 'all') q = q.eq('status', statusFilter)
+      const { data } = await q
+      return data || []
+    },
+  })
+
+  const updateTicket = useMutation({
+    mutationFn: async ({ ticketId, updates }) => {
+      const { error } = await supabase.from('support_tickets').update(updates).eq('id', ticketId)
+      if (error) throw error
+      await insertAuditLog(adminProfile.id, 'support_ticket_replied', 'support_ticket', ticketId, updates)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-support'] })
+      toast.success('Reply sent.')
+      setReplyModal(null)
+      setReplyText('')
+    },
+    onError: (e) => toast.error(e.message),
+  })
+
+  const categoryColors = { general: 'default', account: 'info', booking: 'warning', host: 'primary', safety: 'danger', other: 'default' }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <SectionHeader title="Support" subtitle="Help requests from users — answer questions, resolve account issues" />
+
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        {['open', 'in_progress', 'resolved', 'all'].map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            style={{
+              padding: '0.375rem 0.875rem',
+              borderRadius: 'var(--radius-md)',
+              fontSize: '0.8rem',
+              fontWeight: statusFilter === s ? 600 : 400,
+              background: statusFilter === s ? 'var(--comora-navy)' : 'var(--bg-subtle)',
+              color: statusFilter === s ? '#fff' : 'var(--text-secondary)',
+              border: '1px solid var(--border)',
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
+          >
+            {s.replace('_', ' ')}
+          </button>
+        ))}
+      </div>
+
+      {isLoading
+        ? <p style={{ color: 'var(--text-muted)' }}>Loading tickets…</p>
+        : tickets.length === 0
+          ? <p style={{ color: 'var(--text-muted)', padding: '2rem 0', textAlign: 'center' }}>No support tickets found.</p>
+          : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {tickets.map((t) => (
+                <div key={t.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+                        <Badge variant={t.status === 'resolved' ? 'success' : t.status === 'in_progress' ? 'info' : 'warning'}>
+                          {t.status?.replace('_', ' ')}
+                        </Badge>
+                        {t.category && <Badge variant={categoryColors[t.category] || 'default'}>{t.category}</Badge>}
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t.created_at ? formatDateTime(t.created_at) : ''}</span>
+                      </div>
+                      {t.user && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                          <Avatar src={t.user.avatar_url} name={t.user.name} size="xs" />
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                            {t.user.name} · <span style={{ color: 'var(--text-muted)' }}>{t.user.email}</span>
+                          </span>
+                        </div>
+                      )}
+                      <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{t.subject}</p>
+                      <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{t.message}</p>
+                      {t.admin_reply && (
+                        <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: 'var(--accent-soft)', borderRadius: 'var(--radius-md)', borderLeft: '3px solid var(--comora-navy)' }}>
+                          <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--comora-navy)', marginBottom: '0.25rem' }}>Admin Reply</p>
+                          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{t.admin_reply}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', flexShrink: 0 }}>
+                      {t.status !== 'resolved' && (
+                        <Button variant="primary" size="sm" onClick={() => { setReplyModal(t); setReplyText(t.admin_reply || '') }}>
+                          <MessageCircle size={13} /> {t.admin_reply ? 'Edit Reply' : 'Reply'}
+                        </Button>
+                      )}
+                      {t.status !== 'resolved' && (
+                        <Button variant="secondary" size="sm" onClick={() => updateTicket.mutate({ ticketId: t.id, updates: { status: 'resolved' } })}>
+                          <CheckCircle size={13} /> Mark Resolved
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+      }
+
+      <Modal isOpen={!!replyModal} onClose={() => { setReplyModal(null); setReplyText('') }} title="Reply to Support Ticket" size="sm">
+        {replyModal && (
+          <div style={{ marginBottom: '1rem', padding: '0.75rem', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)' }}>
+            <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{replyModal.subject}</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{replyModal.message}</p>
+          </div>
+        )}
+        <Textarea value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder="Write your reply…" rows={4} />
+        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1.25rem' }}>
+          <Button variant="secondary" onClick={() => { setReplyModal(null); setReplyText('') }}>Cancel</Button>
+          <Button
+            variant="primary"
+            loading={updateTicket.isPending}
+            onClick={() => updateTicket.mutate({
+              ticketId: replyModal.id,
+              updates: { admin_reply: replyText, status: 'in_progress', replied_at: new Date().toISOString() },
+            })}
+          >
+            Send Reply
+          </Button>
+        </div>
+      </Modal>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    ROOT: ADMIN PANEL
 ═══════════════════════════════════════════════════════════════════════════ */
 export default function AdminPanel() {
   const { profile, logout } = useAuth()
-  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const [activeSection, setActiveSection] = useState('dashboard')
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -1145,6 +1289,7 @@ export default function AdminPanel() {
     events:             <EventsSection />,
     'host-verification': <HostVerificationSection />,
     disputes:           <DisputesSection />,
+    support:            <SupportSection />,
     escrow:             <EscrowSection />,
     analytics:          <AnalyticsSection />,
     'audit-log':        <AuditLogSection />,
@@ -1192,7 +1337,7 @@ export default function AdminPanel() {
                 borderRadius: 'var(--radius-md)',
                 fontSize: '0.875rem',
                 fontWeight: activeSection === id ? 600 : 400,
-                color: activeSection === id ? 'var(--navy-800)' : 'var(--text-secondary)',
+                color: activeSection === id ? 'var(--comora-navy)' : 'var(--text-secondary)',
                 background: activeSection === id ? 'var(--accent-soft)' : 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -1208,10 +1353,6 @@ export default function AdminPanel() {
         </nav>
         {/* Bottom actions */}
         <div style={{ padding: '0.75rem 0.5rem', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
-          <button onClick={toggleTheme} style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-md)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.875rem', color: 'var(--text-secondary)', width: '100%', textAlign: 'left' }}>
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-            {theme === 'dark' ? 'Light mode' : 'Dark mode'}
-          </button>
           <Link to="/browse" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-md)', textDecoration: 'none', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
             <ArrowLeft size={16} /> Back to site
           </Link>
@@ -1259,7 +1400,7 @@ export default function AdminPanel() {
                     borderRadius: 'var(--radius-md)',
                     fontSize: '0.875rem',
                     fontWeight: activeSection === id ? 600 : 400,
-                    color: activeSection === id ? 'var(--navy-800)' : 'var(--text-secondary)',
+                    color: activeSection === id ? 'var(--comora-navy)' : 'var(--text-secondary)',
                     background: activeSection === id ? 'var(--accent-soft)' : 'none',
                     border: 'none',
                     cursor: 'pointer',
@@ -1302,11 +1443,11 @@ export default function AdminPanel() {
                 padding: '0.625rem 0.75rem',
                 fontSize: '0.65rem',
                 fontWeight: activeSection === id ? 600 : 400,
-                color: activeSection === id ? 'var(--navy-800)' : 'var(--text-muted)',
-                borderBottom: activeSection === id ? '2px solid var(--navy-800)' : '2px solid transparent',
+                color: activeSection === id ? 'var(--comora-navy)' : 'var(--text-muted)',
+                borderBottom: activeSection === id ? '2px solid var(--comora-navy)' : '2px solid transparent',
                 background: 'none',
                 border: 'none',
-                borderBottom: activeSection === id ? '2px solid var(--navy-800)' : '2px solid transparent',
+                borderBottom: activeSection === id ? '2px solid var(--comora-navy)' : '2px solid transparent',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 flexShrink: 0,

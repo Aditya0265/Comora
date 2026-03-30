@@ -27,7 +27,7 @@ function StatPill({ icon: Icon, label, value, accent = false }) {
       minWidth: '90px',
       flex: '1',
     }}>
-      {Icon && <Icon size={16} style={{ color: accent ? 'var(--navy-800)' : 'var(--text-muted)' }} />}
+      {Icon && <Icon size={16} style={{ color: accent ? 'var(--comora-navy)' : 'var(--text-muted)' }} />}
       <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>{value}</span>
       <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 500, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.03em' }}>{label}</span>
     </div>
@@ -40,9 +40,9 @@ function RatingBar({ stars, count, total }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', width: '1rem', textAlign: 'right', flexShrink: 0 }}>{stars}</span>
-      <Star size={11} style={{ color: 'var(--amber-500)', fill: 'var(--amber-500)', flexShrink: 0 }} />
+      <Star size={11} style={{ color: 'var(--comora-orange)', fill: 'var(--comora-orange)', flexShrink: 0 }} />
       <div style={{ flex: 1, height: '6px', borderRadius: '3px', background: 'var(--bg-subtle)', overflow: 'hidden' }}>
-        <div style={{ width: `${pct}%`, height: '100%', background: 'var(--amber-500)', borderRadius: '3px', transition: 'width 0.4s ease' }} />
+        <div style={{ width: `${pct}%`, height: '100%', background: 'var(--comora-orange)', borderRadius: '3px', transition: 'width 0.4s ease' }} />
       </div>
       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', width: '2rem', textAlign: 'right', flexShrink: 0 }}>{count}</span>
     </div>
@@ -76,8 +76,8 @@ function ReviewCard({ review }) {
                 key={s}
                 size={13}
                 style={{
-                  color: s <= Math.round(rating) ? 'var(--amber-500)' : 'var(--border)',
-                  fill: s <= Math.round(rating) ? 'var(--amber-500)' : 'var(--border)',
+                  color: s <= Math.round(rating) ? 'var(--comora-orange)' : 'var(--border)',
+                  fill: s <= Math.round(rating) ? 'var(--comora-orange)' : 'var(--border)',
                 }}
               />
             ))}
@@ -217,7 +217,7 @@ export default function HostProfile() {
         {/* Decorative gradient top bar */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: '6px',
-          background: 'linear-gradient(90deg, var(--navy-800), var(--amber-500))',
+          background: 'linear-gradient(90deg, var(--comora-navy), var(--comora-orange))',
         }} />
 
         <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
@@ -262,7 +262,7 @@ export default function HostProfile() {
                       fontSize: '0.75rem',
                       fontWeight: 500,
                       background: 'var(--accent-soft)',
-                      color: 'var(--navy-800)',
+                      color: 'var(--comora-navy)',
                       border: '1px solid var(--border)',
                     }}
                   >
@@ -353,7 +353,7 @@ export default function HostProfile() {
           </h2>
           {avgRating && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-              <Star size={18} style={{ color: 'var(--amber-500)', fill: 'var(--amber-500)' }} />
+              <Star size={18} style={{ color: 'var(--comora-orange)', fill: 'var(--comora-orange)' }} />
               <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>{avgRating}</span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>/ 5</span>
             </div>

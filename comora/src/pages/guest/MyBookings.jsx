@@ -48,7 +48,7 @@ function StarPicker({ value = 0, onChange }) {
             size={22}
             className={
               s <= value
-                ? 'text-[var(--amber-500)] fill-[var(--amber-500)]'
+                ? 'text-[var(--comora-orange)] fill-[var(--comora-orange)]'
                 : 'text-[var(--border-strong)]'
             }
           />
@@ -213,7 +213,7 @@ export default function MyBookings() {
               {counts[tab.id] > 0 && (
                 <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
                   activeTab === tab.id
-                    ? 'bg-[var(--navy-800)] text-white'
+                    ? 'bg-[var(--comora-navy)] text-white'
                     : 'bg-[var(--border)] text-[var(--text-muted)]'
                 }`}>
                   {counts[tab.id]}
@@ -226,7 +226,7 @@ export default function MyBookings() {
         {/* Loading */}
         {isLoading && (
           <div className="flex justify-center py-16">
-            <div className="w-8 h-8 border-2 border-[var(--navy-800)] border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-[var(--comora-navy)] border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
@@ -302,7 +302,7 @@ export default function MyBookings() {
 
                         {/* Waitlist position */}
                         {booking.status === 'waitlisted' && booking.waitlist_position && (
-                          <p className="text-xs font-medium text-[var(--amber-500)]">
+                          <p className="text-xs font-medium text-[var(--comora-orange)]">
                             On Waitlist — Position #{booking.waitlist_position}
                           </p>
                         )}
@@ -415,7 +415,7 @@ export default function MyBookings() {
           {/* Overall preview */}
           {Object.values(ratings).some((v) => v > 0) && (
             <div className="flex items-center gap-2 bg-[var(--bg-subtle)] rounded-[var(--radius-md)] px-4 py-2.5">
-              <Star size={14} className="text-[var(--amber-500)] fill-[var(--amber-500)]" />
+              <Star size={14} className="text-[var(--comora-orange)] fill-[var(--comora-orange)]" />
               <span className="text-sm font-medium text-[var(--text-primary)]">
                 Overall:{' '}
                 {(
@@ -430,7 +430,7 @@ export default function MyBookings() {
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-[var(--text-primary)]">Your thoughts (optional)</label>
             <textarea
-              className="w-full px-3 py-2.5 rounded-[var(--radius-md)] text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--navy-800)] focus:ring-2 focus:ring-[var(--accent-soft)] resize-y min-h-[100px]"
+              className="w-full px-3 py-2.5 rounded-[var(--radius-md)] text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--comora-navy)] focus:ring-2 focus:ring-[var(--accent-soft)] resize-y min-h-[100px]"
               placeholder="Share what you enjoyed about this gathering…"
               value={comment}
               onChange={(e) => setComment(e.target.value)}

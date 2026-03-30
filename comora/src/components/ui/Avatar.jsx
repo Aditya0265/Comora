@@ -39,7 +39,7 @@ export default function Avatar({ src, name = '', size = 'md', className = '', ve
         }
       </div>
       {verified && (
-        <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[var(--navy-800)] text-white rounded-full flex items-center justify-center text-[8px] font-bold border-2 border-[var(--bg-card)]">
+        <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[var(--comora-navy)] text-white rounded-full flex items-center justify-center text-[8px] font-bold border-2 border-[var(--bg-card)]">
           ✓
         </span>
       )}

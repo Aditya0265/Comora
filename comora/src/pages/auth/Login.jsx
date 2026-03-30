@@ -7,7 +7,7 @@ import Button from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 
 export default function Login() {
-  const { user, login, loading: authLoading } = useAuth()
+  const { user, profile, login, loading: authLoading } = useAuth()
   const navigate = useNavigate()
 
   const [form, setForm] = useState({ email: '', password: '' })
@@ -17,8 +17,11 @@ export default function Login() {
   const [serverError, setServerError] = useState('')
 
   useEffect(() => {
-    if (user) navigate('/browse', { replace: true })
-  }, [user, navigate])
+    if (!authLoading && user) {
+      if (profile?.role === 'admin') navigate('/admin', { replace: true })
+      else navigate('/browse', { replace: true })
+    }
+  }, [user, profile, authLoading, navigate])
 
   function validate() {
     const errs = {}
@@ -48,7 +51,8 @@ export default function Login() {
         setServerError(error.message || 'Invalid email or password')
       } else {
         toast.success('Welcome back!')
-        navigate('/browse')
+        // Navigation is handled by the useEffect watching user/profile/authLoading
+        // so role-based redirect (admin → /admin, others → /browse) works correctly
       }
     } catch (err) {
       setServerError('Something went wrong. Please try again.')
@@ -198,7 +202,7 @@ export default function Login() {
         >
           Don't have an account?{' '}
           <Link
-            to="/auth/role-select"
+            to="/register"
             style={{ color: 'var(--comora-orange)', fontWeight: 600, textDecoration: 'none' }}
           >
             Create one
