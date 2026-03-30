@@ -82,9 +82,9 @@ function RequireNotAdmin({ children }) {
 }
 
 function RequireMatchMe({ children }) {
-  const { user, needsMatchMe, loading } = useAuth()
+  const { user, profile, needsMatchMe, loading } = useAuth()
   if (loading) return <PageLoader />
-  if (user && needsMatchMe) return <Navigate to="/onboarding" replace />
+  if (user && needsMatchMe && profile?.role !== 'admin') return <Navigate to="/onboarding" replace />
   return children
 }
 
@@ -137,12 +137,12 @@ function AppRoutes() {
           <Route path="/auth/role-select"     element={<Navigate to="/register" replace />} />
           <Route path="/auth/host/signup"     element={<Navigate to="/register" replace />} />
           <Route path="/auth/attendee/signup" element={<Navigate to="/register" replace />} />
-          <Route path="/browse"               element={<RequireNotAdmin><RequireMatchMe><Browse /></RequireMatchMe></RequireNotAdmin>} />
-          <Route path="/discover"             element={<RequireNotAdmin><RequireMatchMe><Discover /></RequireMatchMe></RequireNotAdmin>} />
-          <Route path="/communities"   element={<RequireNotAdmin><Communities /></RequireNotAdmin>} />
-          <Route path="/events/:id"    element={<RequireNotAdmin><EventDetail /></RequireNotAdmin>} />
-          <Route path="/gathering/:id" element={<RequireNotAdmin><GatheringDetail /></RequireNotAdmin>} />
-          <Route path="/host/:id"      element={<RequireNotAdmin><HostProfile /></RequireNotAdmin>} />
+          <Route path="/browse"               element={<RequireMatchMe><Browse /></RequireMatchMe>} />
+          <Route path="/discover"             element={<RequireMatchMe><Discover /></RequireMatchMe>} />
+          <Route path="/communities"   element={<Communities />} />
+          <Route path="/events/:id"    element={<EventDetail />} />
+          <Route path="/gathering/:id" element={<GatheringDetail />} />
+          <Route path="/host/:id"      element={<HostProfile />} />
 
           <Route path="/onboarding"  element={<RequireNotAdmin><RequireAuth><MatchMe /></RequireAuth></RequireNotAdmin>} />
 
