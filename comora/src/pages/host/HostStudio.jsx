@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, Sparkles, Loader2 } from 'lucide-react'
 
 import Button from '../../components/ui/Button'
 import Input, { Textarea, Select } from '../../components/ui/Input'
@@ -201,6 +201,78 @@ function Step1Template({ form, onChange }) {
 function Step2Identity({ form, onChange, errors }) {
   const titleLen = form.title.length
   const descLen  = form.description.length
+  const [generating, setGenerating] = useState(false)
+  const [suggestingTags, setSuggestingTags] = useState(false)
+  const hasDescription = form.description.trim().length > 0
+
+  async function callGroq(messages) {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages, max_tokens: 300, temperature: 1.1 }),
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error?.message || JSON.stringify(data))
+    return data.choices?.[0]?.message?.content?.trim()
+  }
+
+  async function handleDescriptionAI() {
+    if (!form.title.trim()) { toast.error('Add an event title first.'); return }
+    setGenerating(true)
+    try {
+      const agendaLabel = AGENDA_TYPES.find(a => a.id === form.agenda_type)?.label || form.agenda_type
+      const messages = hasDescription
+        ? [
+            { role: 'system', content: 'You refine event descriptions for a social gathering platform called Comora. Keep the original meaning. Improve tone, flow, and warmth. Always 150–180 words. No bullet points. Plain paragraph only.' },
+            { role: 'user', content: `Refine this event description:\n\n"${form.description}"\n\nEvent title: "${form.title}"\nFormat: ${agendaLabel}` },
+          ]
+        : (() => {
+            const styles = [
+              'Open with a thought-provoking question that hooks the reader.',
+              'Open with a vivid scene — paint a picture of what the evening feels like.',
+              'Open with a bold statement about why this kind of gathering matters.',
+              'Open with a relatable feeling of intellectual loneliness and how this event solves it.',
+              'Open with the specific idea or tension at the heart of the event.',
+            ]
+            const style = styles[Math.floor(Math.random() * styles.length)]
+            return [
+              { role: 'system', content: `You write short, compelling event descriptions for a social gathering platform called Comora. Gatherings are agenda-first — centred around ideas, discussions, and intellectual connection, not food. Tone: warm, welcoming, curious. Always 150–180 words. No bullet points. Plain paragraph only. ${style}` },
+              { role: 'user', content: `Write a description for this event.\nTitle: "${form.title}"\nFormat: ${agendaLabel}${form.topic_tags.length ? `\nTopics: ${form.topic_tags.join(', ')}` : ''}` },
+            ]
+          })()
+      const text = await callGroq(messages)
+      if (text) onChange('description', text)
+    } catch (err) {
+      toast.error(err.message || 'Failed. Check your API key.')
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  async function handleSuggestTags() {
+    if (!form.title.trim()) { toast.error('Add an event title first.'); return }
+    setSuggestingTags(true)
+    try {
+      const agendaLabel = AGENDA_TYPES.find(a => a.id === form.agenda_type)?.label || form.agenda_type
+      const text = await callGroq([
+        { role: 'system', content: `You suggest topic tags for events. Only pick from this exact list: ${TOPIC_TAGS.join(', ')}. Return only a JSON array of 3–5 tag strings. No explanation, no markdown, just the array.` },
+        { role: 'user', content: `Event title: "${form.title}"\nFormat: ${agendaLabel}${form.description.trim() ? `\nDescription: "${form.description.slice(0, 200)}"` : ''}` },
+      ])
+      const match = text.match(/\[.*?\]/s)
+      if (!match) throw new Error('Could not parse tags.')
+      const suggested = JSON.parse(match[0]).filter(t => TOPIC_TAGS.includes(t)).slice(0, 5)
+      if (!suggested.length) throw new Error('No matching tags found.')
+      onChange('topic_tags', suggested)
+      toast.success(`${suggested.length} tags suggested!`)
+    } catch (err) {
+      toast.error(err.message || 'Failed to suggest tags.')
+    } finally {
+      setSuggestingTags(false)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -225,8 +297,30 @@ function Step2Identity({ form, onChange, errors }) {
       </div>
 
       <div>
+        <div className="flex items-center justify-between mb-1">
+          <label className="text-sm font-medium text-[var(--text-primary)]">
+            Description <span className="text-[var(--comora-orange)]">*</span>
+          </label>
+          <button
+            type="button"
+            onClick={handleDescriptionAI}
+            disabled={generating || !form.title.trim()}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-all"
+            style={{
+              background: generating || !form.title.trim() ? 'var(--bg-subtle)' : '#000000',
+              color: generating || !form.title.trim() ? 'var(--text-muted)' : '#ffffff',
+              borderColor: generating || !form.title.trim() ? 'var(--border)' : '#000000',
+              cursor: generating || !form.title.trim() ? 'not-allowed' : 'pointer',
+            }}
+            title={!form.title.trim() ? 'Add an event title first' : hasDescription ? 'Refine your description with AI' : 'Generate a description with AI'}
+          >
+            {generating
+              ? <><Loader2 size={11} style={{ animation: 'spin 1s linear infinite' }} /> {hasDescription ? 'Refining…' : 'Generating…'}</>
+              : <><Sparkles size={11} /> {hasDescription ? 'Refine with AI' : 'Generate with AI'}</>
+            }
+          </button>
+        </div>
         <Textarea
-          label="Description"
           required
           value={form.description}
           onChange={(e) => onChange('description', e.target.value)}
@@ -245,9 +339,29 @@ function Step2Identity({ form, onChange, errors }) {
       </div>
 
       <div>
-        <p className="text-sm font-medium text-[var(--text-primary)] mb-2">
-          Topic Tags <span className="text-[var(--text-muted)] font-normal">(up to 5)</span>
-        </p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-medium text-[var(--text-primary)]">
+            Topic Tags <span className="text-[var(--text-muted)] font-normal">(up to 5)</span>
+          </p>
+          <button
+            type="button"
+            onClick={handleSuggestTags}
+            disabled={suggestingTags || !form.title.trim()}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-all"
+            style={{
+              background: suggestingTags || !form.title.trim() ? 'var(--bg-subtle)' : '#000000',
+              color: suggestingTags || !form.title.trim() ? 'var(--text-muted)' : '#ffffff',
+              borderColor: suggestingTags || !form.title.trim() ? 'var(--border)' : '#000000',
+              cursor: suggestingTags || !form.title.trim() ? 'not-allowed' : 'pointer',
+            }}
+            title={!form.title.trim() ? 'Add an event title first' : 'Suggest tags with AI'}
+          >
+            {suggestingTags
+              ? <><Loader2 size={11} style={{ animation: 'spin 1s linear infinite' }} /> Suggesting…</>
+              : <><Sparkles size={11} /> Suggest Tags</>
+            }
+          </button>
+        </div>
         <div className="flex flex-wrap gap-2">
           {TOPIC_TAGS.map((tag) => {
             const selected = form.topic_tags.includes(tag)

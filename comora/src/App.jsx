@@ -24,6 +24,8 @@ import HostDashboard from './pages/host/HostDashboard'
 import HostDashboardNew from './pages/host/HostDashboardNew'
 import HostStudio    from './pages/host/HostStudio'
 import HostProfile   from './pages/host/HostProfile'
+import HostMessages  from './pages/host/HostMessages'
+import MyMessages    from './pages/guest/MyMessages'
 import Communities  from './pages/guest/Communities'
 import AdminPanel    from './pages/admin/AdminPanel'
 import NotFound      from './pages/NotFound'
@@ -127,6 +129,7 @@ function AppRoutes() {
           <Route path="/host/dashboard"  element={<HostDashboardNew />} />
           <Route path="/host/studio/new" element={<HostStudio />} />
           <Route path="/host/studio/:id" element={<HostStudio />} />
+          <Route path="/host/messages"   element={<HostMessages />} />
         </Route>
 
         {/* ── Guest / public: main layout with Navbar + Footer ── */}
@@ -147,6 +150,7 @@ function AppRoutes() {
           <Route path="/onboarding"  element={<RequireNotAdmin><RequireAuth><MatchMe /></RequireAuth></RequireNotAdmin>} />
 
           <Route path="/my-bookings" element={<RequireNotAdmin><RequireAuth><MyBookings /></RequireAuth></RequireNotAdmin>} />
+          <Route path="/my-messages" element={<RequireNotAdmin><RequireAuth><MyMessages /></RequireAuth></RequireNotAdmin>} />
           <Route path="/profile"     element={<RequireNotAdmin><RequireAuth><Profile /></RequireAuth></RequireNotAdmin>} />
           <Route path="/settings"    element={<RequireNotAdmin><RequireAuth><Settings /></RequireAuth></RequireNotAdmin>} />
 

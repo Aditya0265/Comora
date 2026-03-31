@@ -1,9 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Plus, Users, Calendar, TrendingUp, Star, Edit, Eye } from 'lucide-react'
+import { Plus, Users, Calendar, TrendingUp, Star, Edit, Eye, MessageSquare, ChevronRight } from 'lucide-react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Button from '../../components/ui/Button'
 import CategoryBadge from '../../components/ui/CategoryBadge'
 import { useAuth } from '../../contexts/AuthContext'
 import { getCategoryColor } from '../../utils/constants'
+import { supabase } from '../../lib/supabase'
 
 // Mock data - replace with real Supabase data
 const MOCK_STATS = {
@@ -111,8 +113,23 @@ function StatCard({ icon: Icon, label, value, subtitle, color }) {
 }
 
 export default function HostDashboardNew() {
-  const { profile } = useAuth()
+  const { profile, user } = useAuth()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
+
+  const { data: guestMessages = [], error: msgError } = useQuery({
+    queryKey: ['host-messages', user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('host_messages')
+        .select('*, guest:profiles!guest_id(name, avatar_url), community:communities(name)')
+        .eq('host_id', user.id)
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return data ?? []
+    },
+  })
 
   return (
     <div style={{ background: 'var(--comora-cream)', minHeight: 'calc(100vh - 64px)' }}>
@@ -368,114 +385,61 @@ export default function HostDashboardNew() {
             </div>
           </div>
 
-          {/* Recent Activity Sidebar */}
+          {/* Messages Sidebar */}
           <div>
-            <h2
-              style={{
-                fontSize: '1.25rem',
-                fontWeight: '600',
-                color: 'var(--comora-charcoal)',
-                marginBottom: '1rem',
-              }}
-            >
-              Recent Activity
-            </h2>
-            <div
-              style={{
-                background: 'white',
-                padding: '1.5rem',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--comora-beige)',
-                boxShadow: 'var(--shadow-sm)',
-              }}
-            >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {MOCK_RECENT_ACTIVITY.map((activity) => (
-                  <div
-                    key={activity.id}
-                    style={{
-                      paddingBottom: '1rem',
-                      borderBottom: '1px solid var(--comora-beige)',
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '0.75rem',
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '50%',
-                          background: 'var(--comora-navy)',
-                          color: 'white',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '0.875rem',
-                          fontWeight: '600',
-                          flexShrink: 0,
-                        }}
-                      >
-                        {activity.user.charAt(0).toUpperCase()}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <p
-                          style={{
-                            fontSize: '0.875rem',
-                            color: 'var(--comora-charcoal)',
-                            marginBottom: '0.25rem',
-                          }}
-                        >
-                          <strong>{activity.user}</strong>{' '}
-                          {activity.type === 'rsvp' && "RSVP'd to an event in"}
-                          {activity.type === 'question' && 'asked a question in'}
-                          {activity.type === 'member' && 'joined'}{' '}
-                          <strong>{activity.gathering}</strong>
-                        </p>
-                        <p
-                          style={{
-                            fontSize: '0.75rem',
-                            color: 'var(--comora-grey)',
-                          }}
-                        >
-                          {activity.time}
-                        </p>
-                      </div>
-                      {activity.type === 'question' && (
-                        <button
-                          style={{
-                            padding: '0.25rem 0.5rem',
-                            background: 'var(--comora-orange)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: 'var(--radius-sm)',
-                            fontSize: '0.75rem',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Reply
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--comora-charcoal)' }}>Messages</h2>
+                {guestMessages.filter(m => !m.is_read).length > 0 && (
+                  <span style={{ padding: '0.1rem 0.5rem', borderRadius: '9999px', background: 'var(--comora-orange)', color: 'white', fontSize: '0.7rem', fontWeight: 700 }}>
+                    {guestMessages.filter(m => !m.is_read).length} new
+                  </span>
+                )}
               </div>
+              <Link to="/host/messages" style={{ fontSize: '0.8rem', color: 'var(--comora-orange)', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                View all <ChevronRight size={14} />
+              </Link>
+            </div>
 
-              <p
-                style={{
-                  display: 'block',
-                  textAlign: 'center',
-                  marginTop: '1rem',
-                  fontSize: '0.75rem',
-                  color: 'var(--comora-grey)',
-                }}
-              >
-                Showing recent activity
-              </p>
+            <div style={{ background: 'white', borderRadius: 'var(--radius-md)', border: '1px solid var(--comora-beige)', boxShadow: 'var(--shadow-sm)', overflow: 'hidden' }}>
+              {msgError ? (
+                <p style={{ padding: '1rem', fontSize: '0.8rem', color: '#b91c1c' }}>{msgError.message}</p>
+              ) : guestMessages.length === 0 ? (
+                <div style={{ padding: '2rem 1.5rem', textAlign: 'center' }}>
+                  <MessageSquare size={28} style={{ color: 'var(--comora-beige)', margin: '0 auto 0.75rem' }} />
+                  <p style={{ fontSize: '0.85rem', color: 'var(--comora-grey)' }}>No messages yet</p>
+                </div>
+              ) : (
+                guestMessages.slice(0, 5).map((msg, i) => (
+                  <Link
+                    key={msg.id}
+                    to="/host/messages"
+                    style={{
+                      display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+                      padding: '0.875rem 1rem', textDecoration: 'none',
+                      borderBottom: i < Math.min(guestMessages.length, 5) - 1 ? '1px solid var(--comora-beige)' : 'none',
+                      background: msg.is_read ? 'white' : '#FFF7ED',
+                      transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--comora-cream)'}
+                    onMouseLeave={e => e.currentTarget.style.background = msg.is_read ? 'white' : '#FFF7ED'}
+                  >
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--comora-navy)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.8rem', flexShrink: 0, overflow: 'hidden' }}>
+                      {msg.guest?.avatar_url
+                        ? <img src={msg.guest.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        : (msg.guest?.name?.[0] ?? '?').toUpperCase()
+                      }
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
+                        <p style={{ fontWeight: msg.is_read ? 500 : 700, fontSize: '0.85rem', color: 'var(--comora-charcoal)' }}>{msg.guest?.name || 'Guest'}</p>
+                        {!msg.is_read && <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--comora-orange)', flexShrink: 0 }} />}
+                      </div>
+                      <p style={{ fontSize: '0.78rem', color: 'var(--comora-grey)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{msg.message}</p>
+                    </div>
+                  </Link>
+                ))
+              )}
             </div>
 
             {/* Quick Actions */}
@@ -574,6 +538,7 @@ export default function HostDashboardNew() {
             </div>
           </div>
         </div>
+
       </div>
     </div>
   )

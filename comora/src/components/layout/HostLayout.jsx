@@ -2,21 +2,38 @@ import { useState } from 'react'
 import { NavLink, Outlet, useNavigate, Link } from 'react-router-dom'
 import {
   LayoutDashboard, PlusCircle, LogOut, ArrowLeft,
-  Menu, X, Settings, User,
+  Menu, X, Settings, User, MessageSquare,
 } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import Avatar from '../ui/Avatar'
 import SupportChat from '../ui/SupportChat'
 
 const HOST_NAV = [
-  { to: '/host/dashboard',  label: 'Dashboard',     icon: LayoutDashboard },
-  { to: '/host/studio/new', label: 'Create Event',   icon: PlusCircle      },
+  { to: '/host/dashboard',  label: 'Dashboard',    icon: LayoutDashboard },
+  { to: '/host/studio/new', label: 'Create Event',  icon: PlusCircle      },
+  { to: '/host/messages',   label: 'Messages',      icon: MessageSquare   },
 ]
 
 export default function HostLayout() {
-  const { profile, logout } = useAuth()
+  const { profile, logout, user } = useAuth()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['host-messages-unread', user?.id],
+    enabled: !!user,
+    refetchInterval: 30000,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('host_messages')
+        .select('id', { count: 'exact', head: true })
+        .eq('host_id', user.id)
+        .eq('is_read', false)
+      return count ?? 0
+    },
+  })
 
   async function handleLogout() {
     await logout()
@@ -103,7 +120,19 @@ export default function HostLayout() {
             })}
           >
             <Icon size={16} />
-            {label}
+            <span style={{ flex: 1 }}>{label}</span>
+            {to === '/host/messages' && unreadCount > 0 && (
+              <span style={{
+                padding: '0.1rem 0.45rem',
+                borderRadius: '9999px',
+                background: 'var(--comora-orange)',
+                color: 'white',
+                fontSize: '0.65rem',
+                fontWeight: 700,
+              }}>
+                {unreadCount}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>

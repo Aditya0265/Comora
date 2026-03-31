@@ -54,10 +54,21 @@ export default function Settings() {
 
   async function handleDeleteAccount() {
     const confirmed = window.confirm(
-      'Are you sure you want to delete your account? This cannot be undone.'
+      'Are you sure you want to delete your account? All your data, bookings, and reviews will be permanently removed. This cannot be undone.'
     )
     if (!confirmed) return
-    toast.error('Account deletion requires contacting support at hello@comora.app.')
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', user.id)
+      if (error) throw error
+      await logout()
+      toast.success('Your account has been deleted.')
+    } catch (err) {
+      toast.error(err.message || 'Failed to delete account. Please try again.')
+    }
   }
 
   return (

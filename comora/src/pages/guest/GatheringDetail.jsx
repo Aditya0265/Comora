@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import CategoryBadge from '../../components/ui/CategoryBadge'
 import HostCredibilityBadge from '../../components/ui/HostCredibilityBadge'
 import Button from '../../components/ui/Button'
+import Modal from '../../components/ui/Modal'
 import { getCategoryColor } from '../../utils/constants'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
@@ -18,8 +19,11 @@ export default function GatheringDetail() {
   const [gathering, setGathering] = useState(null)
   const [upcomingEvents, setUpcomingEvents] = useState([])
   const [members, setMembers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [notFound, setNotFound] = useState(false)
+  const [loading, setLoading]         = useState(true)
+  const [notFound, setNotFound]       = useState(false)
+  const [msgModal, setMsgModal]       = useState(false)
+  const [msgText, setMsgText]         = useState('')
+  const [sendingMsg, setSendingMsg]   = useState(false)
 
   useEffect(() => {
     async function fetchData() {
@@ -90,7 +94,35 @@ export default function GatheringDetail() {
 
   function handleMessageHost() {
     if (!user) { navigate('/login'); return }
-    toast.success('Message feature coming soon — host has been notified.')
+    setMsgModal(true)
+  }
+
+  async function handleSendMessage(e) {
+    e.preventDefault()
+    if (!msgText.trim()) return
+    setSendingMsg(true)
+    const hostId = gathering?.host?.id
+    const { error } = await supabase.from('host_messages').insert({
+      community_id: gathering.id,
+      guest_id:     user.id,
+      host_id:      hostId,
+      message:      msgText.trim(),
+    })
+    setSendingMsg(false)
+    if (error) {
+      toast.error(error.message || 'Failed to send message.')
+    } else {
+      // Notify the host
+      await supabase.from('notifications').insert({
+        user_id: hostId,
+        type:    'new_guest_message',
+        title:   'New message from a guest',
+        message: msgText.trim().length > 80 ? msgText.trim().slice(0, 80) + '…' : msgText.trim(),
+      })
+      toast.success('Message sent to the host!')
+      setMsgText('')
+      setMsgModal(false)
+    }
   }
 
   if (loading) {
@@ -129,6 +161,7 @@ export default function GatheringDetail() {
   }
 
   return (
+    <>
     <div style={{ background: 'var(--comora-cream)', minHeight: 'calc(100vh - 64px)' }}>
       {/* Hero Section */}
       <div
@@ -168,6 +201,25 @@ export default function GatheringDetail() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Mobile Action Bar — visible below ~900px */}
+      <div style={{ background: 'white', borderBottom: '1px solid var(--comora-beige)', padding: '0.875rem 1rem', display: 'flex', gap: '0.75rem' }} className="md:hidden">
+        <Button
+          onClick={handleJoin}
+          disabled={joiningId === 'community'}
+          style={{ flex: 1, background: 'var(--comora-orange)', color: 'white' }}
+        >
+          {joiningId === 'community' ? 'Joining…' : 'Join Gathering'}
+        </Button>
+        <Button
+          variant="outline"
+          onClick={handleMessageHost}
+          style={{ flex: 1, borderColor: 'var(--comora-navy)', color: 'var(--comora-navy)' }}
+        >
+          <Mail size={15} style={{ marginRight: '0.4rem' }} />
+          Message Host
+        </Button>
       </div>
 
       {/* Main Content */}
@@ -397,5 +449,27 @@ export default function GatheringDetail() {
         </div>
       </div>
     </div>
+
+      {/* ── Message Host Modal ── */}
+      <Modal isOpen={msgModal} onClose={() => setMsgModal(false)} title={`Message ${gathering?.host?.name || 'Host'}`} size="sm">
+        <form onSubmit={handleSendMessage} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            Ask the host anything about <strong>{gathering?.name}</strong>.
+          </p>
+          <textarea
+            required
+            value={msgText}
+            onChange={e => setMsgText(e.target.value)}
+            placeholder="Type your question or message…"
+            rows={4}
+            style={{ width: '100%', padding: '0.625rem 0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--bg-subtle)', color: 'var(--text-primary)', fontSize: '0.875rem', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+            <Button variant="secondary" type="button" onClick={() => setMsgModal(false)}>Cancel</Button>
+            <Button variant="primary" type="submit" loading={sendingMsg}>Send Message</Button>
+          </div>
+        </form>
+      </Modal>
+    </>
   )
 }

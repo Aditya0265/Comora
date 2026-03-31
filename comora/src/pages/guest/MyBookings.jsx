@@ -225,7 +225,7 @@ export default function MyBookings() {
 
         {/* Loading */}
         {isLoading && (
-          <div className="flex justify-center py-16">
+          <div className="flex justify-center py-8">
             <div className="w-8 h-8 border-2 border-[var(--comora-navy)] border-t-transparent rounded-full animate-spin" />
           </div>
         )}
@@ -466,7 +466,7 @@ function EmptyState({ tab, onBrowse }) {
   const { icon, title, sub } = messages[tab] ?? messages.upcoming
 
   return (
-    <div className="flex flex-col items-center gap-4 py-16 text-center">
+    <div className="flex flex-col items-center gap-4 py-8 text-center">
       <div className="text-[var(--text-muted)]">{icon}</div>
       <div>
         <p className="font-semibold text-[var(--text-primary)]">{title}</p>

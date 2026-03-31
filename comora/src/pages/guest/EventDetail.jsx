@@ -86,6 +86,9 @@ export default function EventDetail() {
   const [applyNote, setApplyNote] = useState('')
   const [reviewModalOpen, setReviewModalOpen] = useState(false)
   const [reviewForm, setReviewForm] = useState({ agenda_quality: 0, host_warmth: 0, food_accuracy: 0, group_vibe: 0, comment: '' })
+  const [msgModal, setMsgModal] = useState(false)
+  const [msgText, setMsgText] = useState('')
+  const [sendingMsg, setSendingMsg] = useState(false)
 
   // ── fetch event ──────────────────────────────────────────────────────────
   const { data: event, isLoading, isError } = useQuery({
@@ -246,6 +249,31 @@ export default function EventDetail() {
       navigator.clipboard.writeText(window.location.href)
       toast.success('Link copied to clipboard!')
     }
+  }
+
+  // ── message host ─────────────────────────────────────────────────────────
+  async function handleSendMessage(e) {
+    e.preventDefault()
+    if (!msgText.trim()) return
+    setSendingMsg(true)
+    const { error } = await supabase.from('host_messages').insert({
+      community_id: event.community_id ?? null,
+      guest_id:     user.id,
+      host_id:      event.host_id,
+      message:      msgText.trim(),
+    })
+    setSendingMsg(false)
+    if (error) { toast.error(error.message || 'Failed to send message.'); return }
+    // Notify the host
+    await supabase.from('notifications').insert({
+      user_id: event.host_id,
+      type:    'new_guest_message',
+      title:   'New message from a guest',
+      message: msgText.trim().length > 80 ? msgText.trim().slice(0, 80) + '…' : msgText.trim(),
+    })
+    toast.success('Message sent to host!')
+    setMsgText('')
+    setMsgModal(false)
   }
 
   // ── derived state ────────────────────────────────────────────────────────
@@ -756,6 +784,17 @@ export default function EventDetail() {
                   Share this event
                 </button>
 
+                {/* Message Host */}
+                {user && (
+                  <button
+                    onClick={() => setMsgModal(true)}
+                    className="flex items-center justify-center gap-2 text-sm font-medium text-[var(--comora-navy)] hover:opacity-75 transition-opacity border border-[var(--comora-navy)] rounded-[var(--radius-md)] py-2"
+                  >
+                    <MessageSquare size={15} />
+                    Message Host
+                  </button>
+                )}
+
                 {/* Cancellation policy */}
                 <p className="text-xs text-[var(--text-muted)] text-center border-t border-[var(--border)] pt-3">
                   {event.cancellation_policy === 'none'
@@ -976,6 +1015,32 @@ export default function EventDetail() {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      {/* ── Message Host Modal ────────────────────────────────────────────── */}
+      <Modal
+        isOpen={msgModal}
+        onClose={() => setMsgModal(false)}
+        title={`Message ${event?.host?.name || 'Host'}`}
+        size="sm"
+      >
+        <form onSubmit={handleSendMessage} className="flex flex-col gap-4">
+          <p className="text-sm text-[var(--text-secondary)]">
+            Ask the host anything about <strong>{event?.title}</strong>.
+          </p>
+          <textarea
+            required
+            value={msgText}
+            onChange={e => setMsgText(e.target.value)}
+            placeholder="Type your question or message…"
+            rows={4}
+            className="w-full px-3 py-2.5 rounded-[var(--radius-md)] text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--comora-navy)] focus:ring-2 focus:ring-[var(--accent-soft)] resize-y"
+          />
+          <div className="flex justify-end gap-3">
+            <Button variant="secondary" type="button" onClick={() => setMsgModal(false)}>Cancel</Button>
+            <Button variant="primary" type="submit" loading={sendingMsg}>Send Message</Button>
+          </div>
+        </form>
       </Modal>
     </div>
   )

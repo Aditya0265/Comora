@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import {
   Plus, Star, TrendingUp, Users, CalendarDays, ChevronDown, ChevronUp,
-  ShieldAlert, X, Check, PencilLine, Eye, AlertCircle,
+  ShieldAlert, X, Check, PencilLine, Eye, AlertCircle, MessageSquare,
 } from 'lucide-react'
 
 import Button from '../../components/ui/Button'
@@ -89,6 +89,26 @@ export default function HostDashboard() {
     },
     enabled: events.length > 0,
   })
+
+  // ── fetch guest messages ─────────────────────────────────────────────────
+  const { data: guestMessages = [], error: msgError } = useQuery({
+    queryKey: ['host-messages', user?.id],
+    enabled:  !!user,
+    queryFn:  async () => {
+      const { data, error } = await supabase
+        .from('host_messages')
+        .select('*, guest:profiles!guest_id(name, avatar_url), community:communities(name)')
+        .eq('host_id', user.id)
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return data ?? []
+    },
+  })
+
+  async function markRead(id) {
+    await supabase.from('host_messages').update({ is_read: true }).eq('id', id)
+    queryClient.invalidateQueries(['host-messages', user?.id])
+  }
 
   // ── fetch guests for selected event ─────────────────────────────────────
   const { data: eventGuests = [], isLoading: guestsLoading } = useQuery({
@@ -424,6 +444,53 @@ export default function HostDashboard() {
                   </div>
                 )
               })}
+            </div>
+          )}
+        </section>
+
+        {/* ── Guest Messages ────────────────────────────────────────────────── */}
+        <section className="mb-10">
+          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
+            <MessageSquare size={18} className="text-[var(--comora-navy)]" />
+            Guest Messages
+            {guestMessages.filter(m => !m.is_read).length > 0 && (
+              <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-bold bg-[var(--comora-orange)] text-white">
+                {guestMessages.filter(m => !m.is_read).length} new
+              </span>
+            )}
+          </h2>
+          {msgError ? (
+            <p className="text-sm text-red-500">{msgError.message}</p>
+          ) : guestMessages.length === 0 ? (
+            <p className="text-sm text-[var(--text-muted)] italic">No messages from guests yet.</p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {guestMessages.map(msg => (
+                <div
+                  key={msg.id}
+                  onClick={() => !msg.is_read && markRead(msg.id)}
+                  className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-[var(--radius-xl)] p-4 flex flex-col gap-2 cursor-pointer"
+                  style={{ borderLeft: msg.is_read ? undefined : '3px solid var(--comora-orange)' }}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-[var(--text-primary)]">
+                        {msg.guest?.name || 'Guest'}
+                      </span>
+                      {msg.community?.name && (
+                        <span className="text-xs text-[var(--text-muted)]">re: {msg.community.name}</span>
+                      )}
+                    </div>
+                    <span className="text-xs text-[var(--text-muted)] shrink-0">
+                      {new Date(msg.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{msg.message}</p>
+                  {!msg.is_read && (
+                    <span className="text-xs font-semibold text-[var(--comora-orange)]">Tap to mark as read</span>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </section>

@@ -229,7 +229,7 @@ export default function Communities() {
           </div>
 
           {loading ? (
-            <div className="text-center py-20 text-[var(--text-muted)] text-sm">Loading communities…</div>
+            <div className="text-center py-10 text-[var(--text-muted)] text-sm">Loading communities…</div>
           ) : (
             <>
               {/* Count */}
@@ -245,7 +245,7 @@ export default function Communities() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-20 flex flex-col items-center gap-4">
+                <div className="text-center py-10 flex flex-col items-center gap-4">
                   <span className="text-5xl">🔭</span>
                   <p className="font-semibold text-[var(--text-primary)]">No communities yet</p>
                   <p className="text-sm text-[var(--text-muted)]">

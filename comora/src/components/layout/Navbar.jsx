@@ -12,11 +12,13 @@ import Button from '../ui/Button'
 import { cn } from '../../lib/utils'
 
 const navLinks = [
-  { to: '/discover', label: 'Discover' },
-  { to: '/communities', label: 'Communities' },
+  { to: '/discover',    label: 'Discover'     },
+  { to: '/communities', label: 'Communities'  },
+  { to: '/my-messages', label: 'Messages', authOnly: true, guestOnly: true },
 ]
 
 function NotificationBell({ user }) {
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState([])
   const [ticketReplies, setTicketReplies] = useState([])
@@ -87,22 +89,35 @@ function NotificationBell({ user }) {
 
   const unreadCount = notifications.filter(n => !n.is_read).length
 
+  function getLink(type) {
+    if (type === 'message_reply')     return '/my-messages'
+    if (type === 'new_guest_message') return '/host/messages'
+    if (type === 'support')           return '/contact'
+    if (type === 'booking_confirmed') return '/my-bookings'
+    if (type === 'event_reminder')    return '/my-bookings'
+    if (type === 'event_cancelled')   return '/my-bookings'
+    return null
+  }
+
   const allItems = [
     ...ticketReplies.map(t => ({
-      id: 'ticket-' + t.id,
-      icon: 'support',
-      title: 'Support reply received',
+      id:      'ticket-' + t.id,
+      icon:    'support',
+      title:   'Support reply received',
       message: t.subject,
-      time: t.replied_at,
+      time:    t.replied_at,
+      link:    '/contact',
     })),
     ...notifications.map(n => ({
-      id: n.id,
-      icon: n.type,
-      title: n.title,
+      id:      n.id,
+      icon:    n.type,
+      title:   n.title,
       message: n.message,
-      time: n.created_at,
+      time:    n.created_at,
+      link:    getLink(n.type),
+      unread:  !n.is_read,
     })),
-  ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 10)
+  ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 15)
 
   return (
     <>
@@ -164,35 +179,52 @@ function NotificationBell({ user }) {
                 </p>
               </div>
             ) : (
-              allItems.map(item => (
-                <div key={item.id} style={{
-                  padding: '0.75rem 1rem',
-                  borderBottom: '1px solid var(--border)',
-                  display: 'flex', gap: '0.75rem', alignItems: 'flex-start',
-                }}>
-                  <div style={{
-                    width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
-                    background: item.icon === 'support' ? '#EFF6FF' : 'var(--accent-soft)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    {item.icon === 'support'
-                      ? <MessageCircle size={15} style={{ color: 'var(--comora-navy)' }} />
-                      : <Bell size={15} style={{ color: 'var(--comora-navy)' }} />
-                    }
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.125rem' }}>{item.title}</p>
-                    {item.message && (
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {item.message}
+              allItems.map(item => {
+                const isMsg = item.icon === 'message_reply' || item.icon === 'new_guest_message'
+                const isSupport = item.icon === 'support'
+                const iconBg = isMsg ? '#FFF7ED' : isSupport ? '#EFF6FF' : 'var(--accent-soft)'
+                const iconColor = isMsg ? 'var(--comora-orange)' : 'var(--comora-navy)'
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => { if (item.link) { setOpen(false); navigate(item.link) } }}
+                    style={{
+                      padding: '0.75rem 1rem',
+                      borderBottom: '1px solid var(--border)',
+                      display: 'flex', gap: '0.75rem', alignItems: 'flex-start',
+                      cursor: item.link ? 'pointer' : 'default',
+                      background: item.unread ? 'var(--accent-soft)' : 'transparent',
+                      transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={e => { if (item.link) e.currentTarget.style.background = 'var(--bg-subtle)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = item.unread ? 'var(--accent-soft)' : 'transparent' }}
+                  >
+                    <div style={{
+                      width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
+                      background: iconBg,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <MessageCircle size={15} style={{ color: iconColor }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: '0.8rem', fontWeight: item.unread ? 700 : 600, color: 'var(--text-primary)', marginBottom: '0.125rem' }}>
+                        {item.title}
                       </p>
+                      {item.message && (
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {item.message}
+                        </p>
+                      )}
+                      <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                        {item.time ? new Date(item.time).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
+                      </p>
+                    </div>
+                    {item.link && (
+                      <span style={{ fontSize: '0.65rem', color: 'var(--comora-navy)', fontWeight: 600, alignSelf: 'center', flexShrink: 0 }}>→</span>
                     )}
-                    <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                      {item.time ? new Date(item.time).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
-                    </p>
                   </div>
-                </div>
-              ))
+                )
+              })
             )}
           </div>
         </div>
@@ -239,7 +271,7 @@ export default function Navbar() {
 
         {/* Desktop Nav Links */}
         <div className="hidden md:flex items-center gap-1">
-          {!isAdmin && navLinks.map(({ to, label }) => (
+          {!isAdmin && navLinks.filter(l => (!l.authOnly || user) && (!l.guestOnly || !isHost)).map(({ to, label }) => (
             <NavLink
               key={to}
               to={to}
@@ -326,9 +358,10 @@ export default function Navbar() {
 
                     {[
                       ...(!isAdmin ? [
-                        { to: '/profile',     label: 'My Profile',  Icon: User     },
-                        { to: '/my-bookings', label: 'My Bookings', Icon: Calendar },
-                        { to: '/settings',    label: 'Settings',    Icon: Settings },
+                        { to: '/profile',     label: 'My Profile',  Icon: User           },
+                        { to: '/my-bookings', label: 'My Bookings', Icon: Calendar       },
+                        { to: '/my-messages', label: 'My Messages', Icon: MessageCircle  },
+                        { to: '/settings',    label: 'Settings',    Icon: Settings       },
                       ] : []),
                       ...(isAdmin ? [{ to: '/admin', label: 'Admin Panel', Icon: Shield }] : []),
                     ].map(({ to, label, Icon }) => (
@@ -381,7 +414,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {mobileOpen && (
         <div className="md:hidden border-t border-[var(--border)] bg-[var(--bg-card)] px-4 py-4 flex flex-col gap-2 page-enter">
-          {!isAdmin && navLinks.map(({ to, label }) => (
+          {!isAdmin && navLinks.filter(l => (!l.authOnly || user) && (!l.guestOnly || !isHost)).map(({ to, label }) => (
             <NavLink
               key={to}
               to={to}
@@ -410,12 +443,33 @@ export default function Navbar() {
               </Button>
             </div>
           ) : (
-            <button
-              onClick={() => { handleLogout(); setMobileOpen(false) }}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 mt-1"
-            >
-              <LogOut size={15} /> Sign Out
-            </button>
+            <div className="pt-2 border-t border-[var(--border)] flex flex-col gap-1">
+              {!isAdmin && [
+                { to: '/profile',     label: 'My Profile',  Icon: User          },
+                { to: '/my-bookings', label: 'My Bookings', Icon: Calendar      },
+                { to: '/my-messages', label: 'My Messages', Icon: MessageCircle },
+                { to: '/settings',    label: 'Settings',    Icon: Settings      },
+              ].map(({ to, label, Icon }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) => cn(
+                    'flex items-center gap-2 px-3 py-2 rounded-[var(--radius-md)] text-sm font-medium',
+                    isActive ? 'bg-[var(--accent-soft)] text-[var(--comora-navy)]' : 'text-[var(--text-secondary)]',
+                  )}
+                >
+                  <Icon size={15} />
+                  {label}
+                </NavLink>
+              ))}
+              <button
+                onClick={() => { handleLogout(); setMobileOpen(false) }}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 mt-1"
+              >
+                <LogOut size={15} /> Sign Out
+              </button>
+            </div>
           )}
         </div>
       )}
