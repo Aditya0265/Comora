@@ -10,43 +10,51 @@ const howItWorks = [
     title: 'Tell us who you are',
     desc: 'Complete the Match Me quiz in 90 seconds. Your interests, social style, and city — so we only show you gatherings that fit.',
     icon: '🎯',
+    color: '#FF6B35',
+    bg: '#FFF5F0',
   },
   {
     step: '02',
     title: 'Discover by idea, not by food',
     desc: 'Browse events filtered by intellectual topic, format, and vibe — not cuisine type. Find people who read the same books as you.',
     icon: '🔍',
+    color: '#7B68BE',
+    bg: '#F5F2FF',
   },
   {
     step: '03',
     title: 'Show up ready to talk',
     desc: 'Every confirmed guest gets a Conversation Warm-Up Pack: icebreakers, discussion prompts, and trivia relevant to the agenda.',
     icon: '💬',
+    color: '#16A085',
+    bg: '#ECFDF5',
   },
   {
     step: '04',
     title: 'Build something that lasts',
     desc: 'Rate the experience, connect with co-attendees, and follow hosts you love. Comora is about recurring community, not one-time dinners.',
     icon: '🌱',
+    color: '#27AE60',
+    bg: '#F0FDF4',
   },
 ]
 
 const stats = [
-  { label: 'Gatherings hosted',  value: '2,400+' },
-  { label: 'Cities active',      value: '12'      },
-  { label: 'Repeat attendance',  value: '73%'     },
-  { label: 'Average rating',     value: '4.8 ★'   },
+  { label: 'Gatherings hosted',  value: '2,400+', color: '#FF6B35' },
+  { label: 'Cities active',      value: '12',      color: '#1F3A5E' },
+  { label: 'Repeat attendance',  value: '73%',     color: '#7B68BE' },
+  { label: 'Average rating',     value: '4.8 ★',   color: '#16A085' },
 ]
 
 const categories = [
-  { icon: '📚', label: 'Literature', count: '340+ events' },
-  { icon: '🎬', label: 'Film Studies', count: '180+ events' },
-  { icon: '🧠', label: 'Philosophy', count: '210+ events' },
-  { icon: '🎵', label: 'Music & Arts', count: '150+ events' },
-  { icon: '💻', label: 'Tech & Design', count: '290+ events' },
-  { icon: '🚀', label: 'Career Growth', count: '120+ events' },
-  { icon: '🔬', label: 'Science', count: '90+ events'  },
-  { icon: '🌱', label: 'Social Impact', count: '70+ events'  },
+  { icon: '📚', label: 'Literature',    count: '340+ events', color: '#A86F6F', bg: '#FDF2F2' },
+  { icon: '🎬', label: 'Film Studies',  count: '180+ events', color: '#6A5ACD', bg: '#F0EEFF' },
+  { icon: '🧠', label: 'Philosophy',    count: '210+ events', color: '#7B68BE', bg: '#F4F2FF' },
+  { icon: '🎵', label: 'Music & Arts',  count: '150+ events', color: '#E67E22', bg: '#FFF7ED' },
+  { icon: '💻', label: 'Tech & Design', count: '290+ events', color: '#4A90E2', bg: '#EFF6FF' },
+  { icon: '🚀', label: 'Career Growth', count: '120+ events', color: '#E74C3C', bg: '#FFF1F2' },
+  { icon: '🔬', label: 'Science',       count: '90+ events',  color: '#27AE60', bg: '#F0FDF4' },
+  { icon: '🌱', label: 'Social Impact', count: '70+ events',  color: '#16A085', bg: '#ECFDF5' },
 ]
 
 export default function Landing() {
@@ -65,7 +73,21 @@ export default function Landing() {
 
       {/* ─── Hero ──────────────────────────────────────────── */}
       <section className="hero-gradient relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-24 pb-20 flex flex-col items-center text-center gap-7">
+        {/* Decorative blobs */}
+        <div
+          className="absolute top-8 -left-16 w-72 h-72 rounded-full opacity-25 blur-3xl pointer-events-none"
+          style={{ background: 'var(--comora-orange)' }}
+        />
+        <div
+          className="absolute -top-8 right-0 w-80 h-80 rounded-full opacity-15 blur-3xl pointer-events-none"
+          style={{ background: 'var(--comora-navy)' }}
+        />
+        <div
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 w-96 h-32 rounded-full opacity-20 blur-3xl pointer-events-none"
+          style={{ background: '#7B68BE' }}
+        />
+
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-24 pb-20 flex flex-col items-center text-center gap-7 relative">
 
           <Badge variant="warm" className="gap-1.5">
             <Sparkles size={12} />
@@ -94,15 +116,27 @@ export default function Landing() {
             </Button>
           </div>
 
-          <p className="text-sm italic text-[var(--text-muted)] border-l-2 border-[var(--amber-400)] pl-3 text-left">
+          <p className="text-sm italic text-[var(--text-muted)] border-l-2 border-[var(--comora-orange)] pl-3 text-left">
             "Food gathers people in a room. Ideas keep them at the table."
           </p>
 
         </div>
       </section>
 
+      {/* ─── Stats ─────────────────────────────────────────── */}
+      <section className="py-10 bg-[var(--bg-card)] border-y border-[var(--border)]">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+          {stats.map((s, i) => (
+            <div key={i} className="flex flex-col gap-1">
+              <span className="text-2xl sm:text-3xl font-bold" style={{ color: s.color }}>{s.value}</span>
+              <span className="text-xs text-[var(--text-muted)] uppercase tracking-wider">{s.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ─── The Shift ─────────────────────────────────────── */}
-      <section className="py-20 bg-[var(--bg-subtle)]">
+      <section className="py-20 section-tint-purple">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center flex flex-col gap-8">
           <Badge variant="primary" className="self-center">The Comora Difference</Badge>
           <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)]">
@@ -137,10 +171,19 @@ export default function Landing() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {howItWorks.map((item, i) => (
-              <div key={i} className="flex flex-col gap-4 p-6 rounded-[var(--radius-xl)] bg-[var(--bg-card)] border border-[var(--border)] card-hover">
+              <div
+                key={i}
+                className="flex flex-col gap-4 p-6 rounded-[var(--radius-xl)] bg-[var(--bg-card)] border border-[var(--border)] card-hover overflow-hidden relative"
+                style={{ borderTop: `3px solid ${item.color}` }}
+              >
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{item.icon}</span>
-                  <span className="text-xs font-bold text-[var(--text-muted)] tracking-widest">{item.step}</span>
+                  <div
+                    className="w-10 h-10 rounded-[var(--radius-lg)] flex items-center justify-center text-xl shrink-0"
+                    style={{ background: item.bg }}
+                  >
+                    {item.icon}
+                  </div>
+                  <span className="text-xs font-bold tracking-widest" style={{ color: item.color }}>{item.step}</span>
                 </div>
                 <h3 className="text-base font-semibold text-[var(--text-primary)]">{item.title}</h3>
                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{item.desc}</p>
@@ -151,7 +194,7 @@ export default function Landing() {
       </section>
 
       {/* ─── Browse by Interest ─────────────────────────────── */}
-      <section className="py-20 bg-[var(--bg-subtle)]">
+      <section className="py-20 section-tint-teal">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14 flex flex-col gap-3 items-center">
             <Badge variant="warm">Explore by Interest</Badge>
@@ -168,10 +211,11 @@ export default function Landing() {
               <Link
                 key={i}
                 to={`/browse?topic=${cat.label}`}
-                className="flex flex-col gap-2 p-5 rounded-[var(--radius-xl)] bg-[var(--bg-card)] border border-[var(--border)] card-hover text-center group"
+                className="flex flex-col gap-2 p-5 rounded-[var(--radius-xl)] border border-[var(--border)] card-hover text-center group transition-all"
+                style={{ background: cat.bg }}
               >
                 <span className="text-3xl">{cat.icon}</span>
-                <span className="font-semibold text-[var(--text-primary)] text-sm group-hover:text-[var(--comora-navy)] transition-colors">
+                <span className="font-semibold text-sm transition-colors" style={{ color: cat.color }}>
                   {cat.label}
                 </span>
                 <span className="text-xs text-[var(--text-muted)]">{cat.count}</span>
@@ -219,7 +263,9 @@ export default function Landing() {
           <div className="grid gap-4">
             <div className="p-6 rounded-[var(--radius-xl)] bg-[var(--bg-card)] border border-[var(--border)] flex flex-col gap-3">
               <div className="flex items-center gap-3">
-                <Users size={20} className="text-[var(--comora-navy)]" />
+                <div className="w-10 h-10 rounded-[var(--radius-lg)] flex items-center justify-center" style={{ background: '#EEF4FF' }}>
+                  <Users size={20} style={{ color: 'var(--comora-navy)' }} />
+                </div>
                 <span className="font-semibold text-[var(--text-primary)]">Host Studio</span>
               </div>
               <p className="text-sm text-[var(--text-secondary)]">
@@ -229,7 +275,9 @@ export default function Landing() {
             </div>
             <div className="p-6 rounded-[var(--radius-xl)] bg-[var(--bg-card)] border border-[var(--border)] flex flex-col gap-3">
               <div className="flex items-center gap-3">
-                <Calendar size={20} className="text-[var(--comora-orange)]" />
+                <div className="w-10 h-10 rounded-[var(--radius-lg)] flex items-center justify-center" style={{ background: '#FFF5F0' }}>
+                  <Calendar size={20} style={{ color: 'var(--comora-orange)' }} />
+                </div>
                 <span className="font-semibold text-[var(--text-primary)]">Guest Management</span>
               </div>
               <p className="text-sm text-[var(--text-secondary)]">

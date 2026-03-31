@@ -203,7 +203,18 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
 
 /* ─── Gradient overlays ──────────────────────────────────────── */
 .hero-gradient {
-  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(30,58,95,0.12) 0%, transparent 70%),
-              linear-gradient(180deg, var(--bg-base) 0%, var(--bg-subtle) 100%);
+  background:
+    radial-gradient(ellipse 55% 45% at 10% 60%, rgba(255,107,53,0.13) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 45% at 90% 20%, rgba(31,58,94,0.11) 0%, transparent 65%),
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(30,58,95,0.10) 0%, transparent 70%),
+    linear-gradient(180deg, var(--bg-base) 0%, var(--bg-subtle) 100%);
+}
+
+/* ─── Landing section backgrounds ───────────────────────────── */
+.section-tint-purple {
+  background: linear-gradient(135deg, #FFF8F5 0%, #F5F2FF 100%);
+}
+.section-tint-teal {
+  background: linear-gradient(135deg, #F0FDFB 0%, #F0F4FF 100%);
 }
 
