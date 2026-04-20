@@ -43,3 +43,15 @@
 1. You can deploy your application to services like Heroku, Vercel, or AWS. Follow their respective documentation for deployment steps.
 
 2. Ensure that your build directory is correctly set up in the deployment platform.
+
+## Installation Guide
+To install the necessary packages, run:
+
+```bash
+npm install
+```
+
+## Reference Guide
+For more information, check the following resources:
+- [npm documentation](https://www.npmjs.com/)
+- [Node.js API documentation](https://nodejs.org/api/documentation.html)
