@@ -8,7 +8,7 @@
 
 2. Navigate to the project directory: 
    ```bash
-   cd Comora
+   cd comora
    ```
 
 ## Environment Configuration
