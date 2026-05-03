@@ -111,7 +111,7 @@ function validateStep(step, form) {
     if (form.title.length > 80) errors.title = 'Max 80 characters.'
     if (!form.description.trim()) errors.description = 'Description is required.'
     if (form.description.trim().length < 100) errors.description = 'Please write at least 100 characters.'
-    if (form.description.length > 1000) errors.description = 'Max 1000 characters.'
+    if (form.description.length > 5000) errors.description = 'Max 5000 characters.'
   }
   if (step === 4) {
     if (!form.date) errors.date = 'Please pick a date.'
@@ -226,8 +226,8 @@ function Step2Identity({ form, onChange, errors }) {
       const agendaLabel = AGENDA_TYPES.find(a => a.id === form.agenda_type)?.label || form.agenda_type
       const messages = hasDescription
         ? [
-            { role: 'system', content: 'You refine event descriptions for a social gathering platform called Comora. Keep the original meaning. Improve tone, flow, and warmth. Always 150–180 words. No bullet points. Plain paragraph only.' },
-            { role: 'user', content: `Refine this event description:\n\n"${form.description}"\n\nEvent title: "${form.title}"\nFormat: ${agendaLabel}` },
+            { role: 'system', content: `You are an expert writer for Comora, a social gathering platform built around ideas, discussions, and intellectual connection. Your job is to improve the host's event description — sharpen the writing, improve flow, and make it feel natural and inviting — while staying completely true to the event's title and format. The format "${agendaLabel}" should shape the tone and energy of the description. Do not invent details not implied by the title or original text. Always 150–180 words. No bullet points. Plain paragraph only.` },
+            { role: 'user', content: `Improve this event description. Keep the core idea intact but make the writing more natural, warm, and compelling.\n\nEvent title: "${form.title}"\nFormat: ${agendaLabel}${form.topic_tags.length ? `\nTopics: ${form.topic_tags.join(', ')}` : ''}\n\nOriginal description:\n"${form.description}"` },
           ]
         : (() => {
             const styles = [
@@ -239,8 +239,8 @@ function Step2Identity({ form, onChange, errors }) {
             ]
             const style = styles[Math.floor(Math.random() * styles.length)]
             return [
-              { role: 'system', content: `You write short, compelling event descriptions for a social gathering platform called Comora. Gatherings are agenda-first — centred around ideas, discussions, and intellectual connection, not food. Tone: warm, welcoming, curious. Always 150–180 words. No bullet points. Plain paragraph only. ${style}` },
-              { role: 'user', content: `Write a description for this event.\nTitle: "${form.title}"\nFormat: ${agendaLabel}${form.topic_tags.length ? `\nTopics: ${form.topic_tags.join(', ')}` : ''}` },
+              { role: 'system', content: `You write short, compelling event descriptions for Comora, a social gathering platform built around ideas, discussions, and intellectual connection — not food or entertainment. The event's title and format are your primary anchors — let them define the theme, tone, and energy of the description. Write as if you deeply understand what this specific gathering is about. Tone: warm, curious, welcoming. Always 150–180 words. No bullet points. Plain paragraph only. ${style}` },
+              { role: 'user', content: `Write a description for this event. Let the title and format guide the theme and content entirely.\n\nTitle: "${form.title}"\nFormat: ${agendaLabel}${form.topic_tags.length ? `\nTopics: ${form.topic_tags.join(', ')}` : ''}` },
             ]
           })()
       const text = await callGroq(messages)
@@ -332,8 +332,8 @@ function Step2Identity({ form, onChange, errors }) {
           <span className={`text-xs ${descLen < 100 ? 'text-[var(--comora-orange)]' : 'text-[var(--text-muted)]'}`}>
             {descLen < 100 ? `${100 - descLen} more characters needed` : ''}
           </span>
-          <span className={`text-xs ${descLen > 900 ? 'text-[var(--comora-orange)]' : 'text-[var(--text-muted)]'}`}>
-            {descLen}/1000
+          <span className={`text-xs ${descLen > 4500 ? 'text-[var(--comora-orange)]' : 'text-[var(--text-muted)]'}`}>
+            {descLen}/5000
           </span>
         </div>
       </div>

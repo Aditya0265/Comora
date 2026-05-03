@@ -77,7 +77,7 @@ function StarRow({ value = 0 }) {
 export default function EventDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const queryClient = useQueryClient()
 
   const [applyModalOpen, setApplyModalOpen] = useState(false)
@@ -194,12 +194,35 @@ export default function EventDetail() {
       if (error) throw error
       return data
     },
-    onSuccess: (_, vars) => {
+    onSuccess: async (_, vars) => {
       toast.success(
         vars.status === 'waitlisted'
           ? 'Added to waitlist!'
           : 'RSVP confirmed!'
       )
+
+      // Send booking confirmation email (only for confirmed, not waitlisted)
+      if (vars.status === 'confirmed' && user?.email && profile?.name) {
+        try {
+          await supabase.functions.invoke('send-email', {
+            body: {
+              type: 'booking_confirmed',
+              to: user.email,
+              guestName: profile.name,
+              eventTitle: event?.title,
+              hostName: event?.host?.name,
+              eventDate: formatDate(event?.event_date),
+              eventTime: formatTime(event?.event_time),
+              eventCity: event?.city,
+              price: event?.price > 0 ? formatCurrency(event.price) : 'Free',
+              eventId: id,
+            },
+          })
+        } catch (err) {
+          console.error('Failed to send booking confirmation email:', err)
+        }
+      }
+
       queryClient.invalidateQueries({ queryKey: ['booking', id, user?.id] })
       queryClient.invalidateQueries({ queryKey: ['event', id] })
     },
@@ -215,8 +238,30 @@ export default function EventDetail() {
         .eq('id', booking.id)
       if (error) throw error
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('RSVP cancelled.')
+
+      // Send booking cancelled email
+      if (user?.email && profile?.name) {
+        try {
+          await supabase.functions.invoke('send-email', {
+            body: {
+              type: 'booking_cancelled',
+              to: user.email,
+              guestName: profile.name,
+              eventTitle: event?.title,
+              hostName: event?.host?.name,
+              eventDate: formatDate(event?.event_date),
+              eventTime: formatTime(event?.event_time),
+              eventCity: event?.city,
+              price: event?.price > 0 ? formatCurrency(event.price) : 'Free',
+            },
+          })
+        } catch (err) {
+          console.error('Failed to send booking cancellation email:', err)
+        }
+      }
+
       setCancelModalOpen(false)
       queryClient.invalidateQueries({ queryKey: ['booking', id, user?.id] })
       queryClient.invalidateQueries({ queryKey: ['event', id] })
