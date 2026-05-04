@@ -771,6 +771,8 @@ export default function HostStudio() {
   const [errors, setErrors]     = useState({})
   const [isSaving, setIsSaving]       = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
+  // Tracks the saved event id for mid-flow drafts (null = not yet saved)
+  const [draftId, setDraftId] = useState(id ?? null)
 
   // ── load existing event in edit mode ────────────────────────────────────
   const { data: existingEvent } = useQuery({
@@ -862,19 +864,20 @@ export default function HostStudio() {
     }
   }
 
-  async function handleSaveDraft() {
+  async function handleSaveDraft(navigateAway = true) {
     setIsSaving(true)
     try {
       const payload = buildPayload('draft')
-      if (isEditMode) {
-        const { error } = await supabase.from('events').update(payload).eq('id', id)
+      if (draftId) {
+        const { error } = await supabase.from('events').update(payload).eq('id', draftId)
         if (error) throw error
       } else {
-        const { error } = await supabase.from('events').insert(payload)
+        const { data, error } = await supabase.from('events').insert(payload).select().single()
         if (error) throw error
+        setDraftId(data.id)
       }
       toast.success('Draft saved!')
-      navigate('/host/dashboard')
+      if (navigateAway) navigate('/host/dashboard')
     } catch (err) {
       toast.error(err.message || 'Failed to save')
     } finally {
@@ -886,8 +889,8 @@ export default function HostStudio() {
     setIsPublishing(true)
     try {
       const payload = buildPayload('pending')
-      if (isEditMode) {
-        const { error } = await supabase.from('events').update(payload).eq('id', id)
+      if (draftId) {
+        const { error } = await supabase.from('events').update(payload).eq('id', draftId)
         if (error) throw error
       } else {
         const { error } = await supabase.from('events').insert(payload)
@@ -930,7 +933,7 @@ export default function HostStudio() {
           {step === 6 && (
             <Step6Preview
               form={formData}
-              onSaveDraft={handleSaveDraft}
+              onSaveDraft={() => handleSaveDraft(true)}
               onPublish={handlePublish}
               isSaving={isSaving}
               isPublishing={isPublishing}
@@ -948,10 +951,20 @@ export default function HostStudio() {
               <ChevronLeft size={16} />
               {step === 1 ? 'Cancel' : 'Back'}
             </Button>
-            <Button variant="primary" onClick={handleNext}>
-              {step === 5 ? 'Preview' : 'Next'}
-              <ChevronRight size={16} />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                loading={isSaving}
+                onClick={() => handleSaveDraft(false)}
+              >
+                Save Draft
+              </Button>
+              <Button variant="primary" onClick={handleNext}>
+                {step === 5 ? 'Preview' : 'Next'}
+                <ChevronRight size={16} />
+              </Button>
+            </div>
           </div>
         )}
 

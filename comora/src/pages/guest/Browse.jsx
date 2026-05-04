@@ -32,11 +32,32 @@ const SORT_OPTIONS = [
   { value: 'price_asc',   label: 'Price (low–high)' },
 ]
 
+// Maps MatchMe interest IDs → event topic_tags they correspond to
+const INTEREST_TO_TOPICS = {
+  literature:  ['Fantasy Fiction', 'Science Fiction', 'Classic Literature', 'Contemporary Fiction', 'Theatre', 'Poetry'],
+  film:        ['Film Studies', 'Photography'],
+  philosophy:  ['Philosophy', 'History', 'Mental Health'],
+  music:       ['Indie Music', 'Visual Arts'],
+  tech:        ['Science & Tech', 'Game Design', 'UX Design', 'Data & AI'],
+  science:     ['Science & Tech', 'Sustainability'],
+  career:      ['Entrepreneurship', 'Career Transition'],
+  food:        ['Food Culture'],
+  gaming:      ['Game Design'],
+  social:      ['Social Impact', 'Sustainability', 'Travel'],
+}
+
+const DATE_OPTIONS = [
+  { value: 'any',   label: 'Any time' },
+  { value: 'week',  label: 'This week' },
+  { value: 'month', label: 'This month' },
+]
+
 const INITIAL_FILTERS = {
   search:      '',
   topics:      [],
   formats:     [],
   city:        '',
+  dateRange:   'any',
   structure:   3,
   energy:      3,
   groupSize:   'any',
@@ -75,7 +96,7 @@ function SkeletonCard() {
 
 /* ─── Become a Host banner ───────────────────────────────────── */
 function HostBanner() {
-  const { user, isHost } = useAuth()
+  const { user, isHost, profile } = useAuth()
   const navigate = useNavigate()
 
   function handleHostCTA() {
@@ -107,6 +128,7 @@ function HostBanner() {
 
 /* ─── Main component ─────────────────────────────────────────── */
 export default function Browse() {
+  const { profile } = useAuth()
   const [filters, setFilters]         = useState(INITIAL_FILTERS)
   const [sort, setSort]               = useState('recommended')
   const [limit, setLimit]             = useState(PAGE_SIZE)
@@ -120,7 +142,7 @@ export default function Browse() {
       let query = supabase
         .from('events')
         .select('*, host:profiles(name,avatar_url,host_verified)')
-        .eq('status', 'live')
+        .in('status', ['approved', 'live'])
         .order('date_time')
         .range(0, limit - 1)
 
@@ -137,6 +159,13 @@ export default function Browse() {
       }
       if (filters.topics.length > 0) {
         query = query.contains('topic_tags', filters.topics)
+      }
+      if (filters.dateRange !== 'any') {
+        const now = new Date()
+        const end = new Date()
+        if (filters.dateRange === 'week')  end.setDate(end.getDate() + 7)
+        if (filters.dateRange === 'month') end.setMonth(end.getMonth() + 1)
+        query = query.gte('date_time', now.toISOString()).lt('date_time', end.toISOString())
       }
 
       const { data, error } = await query
@@ -172,8 +201,27 @@ export default function Browse() {
       })
     }
 
+    // Vibe: structure (3 = midpoint = no filter)
+    if (filters.structure !== 3) {
+      list = list.filter((e) => Math.abs((e.vibe_structure ?? 3) - filters.structure) <= 1)
+    }
+
+    // Vibe: energy (3 = midpoint = no filter)
+    if (filters.energy !== 3) {
+      list = list.filter((e) => Math.abs((e.vibe_energy ?? 3) - filters.energy) <= 1)
+    }
+
     // Sort
-    if (sort === 'soonest') {
+    if (sort === 'recommended' && profile?.interests?.length > 0) {
+      const preferredTopics = new Set(
+        profile.interests.flatMap((id) => INTEREST_TO_TOPICS[id] ?? [])
+      )
+      list.sort((a, b) => {
+        const scoreA = (a.topic_tags ?? []).filter((t) => preferredTopics.has(t)).length
+        const scoreB = (b.topic_tags ?? []).filter((t) => preferredTopics.has(t)).length
+        return scoreB - scoreA
+      })
+    } else if (sort === 'soonest') {
       list.sort((a, b) => new Date(a.date_time) - new Date(b.date_time))
     } else if (sort === 'rating') {
       list.sort((a, b) => (b.avg_overall ?? 0) - (a.avg_overall ?? 0))
@@ -182,7 +230,7 @@ export default function Browse() {
     }
 
     return list
-  }, [rawEvents, filters.groupSize, filters.price, sort])
+  }, [rawEvents, filters.groupSize, filters.price, filters.structure, filters.energy, sort, profile?.interests])
 
   /* ── Filter helpers ── */
   function updateFilter(key, value) {
@@ -227,6 +275,18 @@ export default function Browse() {
     if (filters.price !== 'any') {
       const opt = PRICE_OPTIONS.find((o) => o.value === filters.price)
       pills.push({ key: 'price', label: opt?.label, clear: () => updateFilter('price', 'any') })
+    }
+    if (filters.dateRange !== 'any') {
+      const opt = DATE_OPTIONS.find((o) => o.value === filters.dateRange)
+      pills.push({ key: 'date', label: opt?.label, clear: () => updateFilter('dateRange', 'any') })
+    }
+    if (filters.structure !== 3) {
+      const label = ['Very Freeform', 'Freeform', 'Mixed', 'Structured', 'Very Structured'][filters.structure - 1]
+      pills.push({ key: 'structure', label: `Structure: ${label}`, clear: () => updateFilter('structure', 3) })
+    }
+    if (filters.energy !== 3) {
+      const label = ['Very Quiet', 'Quiet', 'Mixed', 'Lively', 'Very Lively'][filters.energy - 1]
+      pills.push({ key: 'energy', label: `Energy: ${label}`, clear: () => updateFilter('energy', 3) })
     }
     return pills
   }, [filters])
@@ -333,6 +393,22 @@ export default function Browse() {
           <option value="">All Cities</option>
           {CITIES.map((c) => (
             <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* When */}
+      <div>
+        <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-2">
+          When
+        </label>
+        <select
+          value={filters.dateRange}
+          onChange={(e) => updateFilter('dateRange', e.target.value)}
+          className="w-full px-3 py-2 text-sm rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--comora-navy)] cursor-pointer"
+        >
+          {DATE_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </select>
       </div>
@@ -575,13 +651,20 @@ export default function Browse() {
 
             {/* Result count + sort */}
             <div className="flex items-center justify-between gap-4 mb-5">
-              <p className="text-sm text-[var(--text-secondary)]">
-                {isLoading ? (
-                  <span className="skeleton inline-block w-32 h-4 rounded" />
-                ) : (
-                  <><span className="font-semibold text-[var(--text-primary)]">{events.length}</span> gathering{events.length !== 1 ? 's' : ''} found</>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-[var(--text-secondary)]">
+                  {isLoading ? (
+                    <span className="skeleton inline-block w-32 h-4 rounded" />
+                  ) : (
+                    <><span className="font-semibold text-[var(--text-primary)]">{events.length}</span> gathering{events.length !== 1 ? 's' : ''} found</>
+                  )}
+                </p>
+                {!isLoading && sort === 'recommended' && profile?.match_me_completed && (
+                  <span className="text-xs font-medium text-[var(--comora-orange)] bg-[var(--accent-soft)] px-2 py-0.5 rounded-full">
+                    Personalized
+                  </span>
                 )}
-              </p>
+              </div>
 
               <div className="flex items-center gap-2">
                 <label className="text-xs text-[var(--text-muted)] hidden sm:block">Sort:</label>

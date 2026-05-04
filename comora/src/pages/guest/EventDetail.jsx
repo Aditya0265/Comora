@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
@@ -150,6 +150,20 @@ export default function EventDetail() {
       return data ?? null
     },
   })
+
+  // ── auto-complete if event date has passed ───────────────────────────────
+  useEffect(() => {
+    if (!event) return
+    if (event.status !== 'approved' && event.status !== 'live') return
+    if (!event.date_time) return
+    const endMs = new Date(event.date_time).getTime() + (event.duration_minutes ?? 120) * 60_000
+    if (Date.now() < endMs) return
+    supabase
+      .from('events')
+      .update({ status: 'completed' })
+      .eq('id', event.id)
+      .then(() => queryClient.invalidateQueries({ queryKey: ['event', id] }))
+  }, [event?.id, event?.status])
 
   // ── submit review mutation ───────────────────────────────────────────────
   const reviewMutation = useMutation({
@@ -737,7 +751,23 @@ export default function EventDetail() {
                 </div>
 
                 {/* RSVP button logic */}
-                {!user ? (
+                {event.status === 'completed' ? (
+                  <div className="text-center py-3 rounded-[var(--radius-md)] bg-[var(--bg-subtle)] border border-[var(--border)]">
+                    <p className="text-sm font-semibold text-[var(--text-secondary)]">This event has ended</p>
+                    {canReview && !myReview && (
+                      <button
+                        onClick={() => setReviewModalOpen(true)}
+                        className="mt-1.5 text-xs font-medium text-[var(--comora-orange)] hover:underline"
+                      >
+                        Leave a review →
+                      </button>
+                    )}
+                  </div>
+                ) : event.status === 'cancelled' ? (
+                  <div className="text-center py-3 rounded-[var(--radius-md)] bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800">
+                    <p className="text-sm font-semibold text-red-500">This event was cancelled</p>
+                  </div>
+                ) : !user ? (
                   <Button
                     variant="primary"
                     fullWidth

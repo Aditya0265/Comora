@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
@@ -71,6 +71,26 @@ export default function HostDashboard() {
       return data ?? []
     },
   })
+
+  // ── auto-complete past events ────────────────────────────────────────────
+  useEffect(() => {
+    if (!events.length) return
+    const now = Date.now()
+    const toComplete = events
+      .filter((e) => {
+        if (e.status !== 'approved' && e.status !== 'live') return false
+        if (!e.date_time) return false
+        const endMs = new Date(e.date_time).getTime() + (e.duration_minutes ?? 120) * 60_000
+        return endMs < now
+      })
+      .map((e) => e.id)
+    if (!toComplete.length) return
+    supabase
+      .from('events')
+      .update({ status: 'completed' })
+      .in('id', toComplete)
+      .then(() => queryClient.invalidateQueries({ queryKey: ['host-events', user?.id] }))
+  }, [events])
 
   // ── fetch all bookings for stats ─────────────────────────────────────────
   const { data: allBookings = [] } = useQuery({
@@ -233,7 +253,7 @@ export default function HostDashboard() {
 
         {/* ── Stats row ────────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          {statCard(<CalendarDays size={18} />, 'Total Events',      totalEvents,    `${events.filter((e) => e.status === 'live').length} live now`)}
+          {statCard(<CalendarDays size={18} />, 'Total Events',      totalEvents,    `${events.filter((e) => e.status === 'live' || e.status === 'approved').length} live now`)}
           {statCard(<Users size={18} />,        'Active Bookings',   activeBookings, 'confirmed RSVPs')}
           {statCard(<TrendingUp size={18} />,   'Simulated Earnings', formatCurrency(earnings), 'from confirmed bookings')}
           {statCard(<Star size={18} />,         'Avg Rating',        avgRating,      profile?.total_reviews ? `${profile.total_reviews} reviews` : 'No reviews yet')}
@@ -276,7 +296,7 @@ export default function HostDashboard() {
                           <Badge variant={statusVariant(event.status)}>
                             {event.status}
                           </Badge>
-                          {event.status === 'live' && (
+                          {(event.status === 'live' || event.status === 'approved') && (
                             <Badge variant="live" dot>Live</Badge>
                           )}
                         </div>

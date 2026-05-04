@@ -84,9 +84,9 @@ function RequireNotAdmin({ children }) {
 }
 
 function RequireMatchMe({ children }) {
-  const { user, needsMatchMe, loading } = useAuth()
+  const { user, needsMatchMe, loading, isHost } = useAuth()
   if (loading) return <PageLoader />
-  if (user && needsMatchMe) return <Navigate to="/onboarding" replace />
+  if (user && needsMatchMe && !isHost) return <Navigate to="/onboarding" replace />
   return children
 }
 
